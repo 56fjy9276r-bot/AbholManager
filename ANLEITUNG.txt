@@ -1,0 +1,28 @@
+ABHOLMANAGER VERSION 2 – BILD-2-DESIGN
+
+Enthalten:
+- modernes Dashboard im Stil des zweiten Entwurfs
+- Statuskarten: Offen, Kritisch, Bald fällig, Erledigt
+- rote Warnmeldung
+- große Abholungskarten mit Foto
+- Touren: G72, G61, G63, G62, G60, G59, K57
+- KI/OCR erkennt Tourcodes auf fotografierten Abholscheinen
+- automatische Fälligkeit +4 Tage
+- Suche, Sortierung und Tourenfilter
+- Apple-Karten-Routen
+- Kalender und Erinnerungsübersicht
+- Abschlussfoto als Nachweis
+- Hell-/Dunkelmodus
+- Export und Import
+- Fahrerzugriff auf alle Touren vorbereitet
+
+WICHTIG:
+Diese Testversion speichert Daten lokal auf dem jeweiligen Gerät.
+Damit mehrere Fahrer dieselben Daten live sehen, muss später eine Cloud-Datenbank
+wie Supabase oder Firebase verbunden werden.
+
+INSTALLATION MIT NETLIFY:
+1. ZIP-Datei entpacken.
+2. Den Ordner AbholManager_V2_Bild2 bei Netlify Drop hochladen.
+3. Link in Safari öffnen.
+4. Teilen > Zum Home-Bildschirm.

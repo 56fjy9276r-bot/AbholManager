@@ -27,3 +27,22 @@ UPLOAD:
 2. Die 5 Dateien in GitHub hochladen und vorhandene ersetzen.
 3. Commit changes.
 4. Seite neu laden. Der Service Worker dieser Version löscht alte Caches automatisch.
+
+
+VERSION 4 TEAM – NEU
+- Beleg direkt mit der iPhone-Kamera fotografieren
+- OCR erkennt Tour, Kunde, Auftrag und vollständige Adresse
+- echte Statistiken aus den gespeicherten Abholungen
+- optionale Live-Synchronisierung über Supabase
+- Echtzeit-Updates für alle verbundenen Kollegen
+- Offline/lokal weiterhin nutzbar
+
+LIVE-SYNCHRONISIERUNG EINRICHTEN
+1. Kostenloses Supabase-Projekt erstellen.
+2. Datei SUPABASE_EINRICHTUNG.sql im Supabase SQL Editor ausführen.
+3. Projekt-URL und öffentlichen anon key in der App unter Einstellungen eintragen.
+4. Auf Verbinden tippen.
+
+HINWEIS
+Die Fotos werden in dieser Testversion als Bilddaten in der Datenbank gespeichert.
+Für einen späteren Produktivbetrieb sollte Supabase Storage verwendet werden.

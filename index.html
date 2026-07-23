@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09111f">
-<title>AbholManager V3 Premium</title>
+<title>AbholManager V4 Team</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
  --bg:#eef2f7;--surface:#ffffff;--text:#101828;--muted:#667085;--line:#e4e7ec;
@@ -43,7 +44,7 @@ body.dark{--bg:#08111d;--surface:#111c2b;--text:#f4f7fb;--muted:#9eb0c5;--line:#
 <body>
 <div class="app">
 <header class="hero">
- <div class="top"><div class="brand"><div class="logo">🚚</div><div><h1>AbholManager</h1><small>Version 3 · Premium</small></div></div><button class="iconbtn" onclick="go('reminders')">🔔</button></div>
+ <div class="top"><div class="brand"><div class="logo">🚚</div><div><h1>AbholManager</h1><small>Version 4 · Team</small></div></div><button class="iconbtn" onclick="go('reminders')">🔔</button></div>
  <div class="welcome"><h2>Deine Touren. Dein Überblick.</h2><p>Abholungen intelligent erfassen, zuweisen und abschließen.</p></div>
  <div class="driverline"><div class="driver"><div class="avatar">F</div><div><small style="opacity:.7">Aktiver Fahrer</small><br><select id="driverProfile" onchange="changeDriver(this.value)"><option>Fahrer 1</option><option>Fahrer 2</option><option>Fahrer 3</option><option>Disposition</option></select></div></div><span class="badge green">Alle Touren</span></div>
 </header>
@@ -56,6 +57,19 @@ body.dark{--bg:#08111d;--surface:#111c2b;--text:#f4f7fb;--muted:#9eb0c5;--line:#
   <div class="stat amber"><small>Bald fällig</small><strong id="mSoon">0</strong></div>
   <div class="stat green"><small>Erledigt</small><strong id="mDone">0</strong></div>
  </div>
+
+ <div class="panel" id="realStats">
+  <div class="sectiontitle" style="margin-top:0"><h3>Echte Statistiken</h3><span id="statsPeriod" class="badge">Gesamt</span></div>
+  <div class="summary">
+   <div class="stat"><small>Abholungen gesamt</small><strong id="sTotal">0</strong></div>
+   <div class="stat green"><small>Abschlussquote</small><strong id="sRate">0%</strong></div>
+   <div class="stat amber"><small>Ø Bearbeitungszeit</small><strong id="sAvg">–</strong></div>
+   <div class="stat red"><small>Überfällig</small><strong id="sOverdue">0</strong></div>
+  </div>
+  <div class="settingrow"><div><b>Stärkste Tour</b><div class="meta">Meiste erfasste Abholungen</div></div><span id="sTopTour" class="badge">–</span></div>
+  <div class="settingrow"><div><b>Aktivster Fahrer</b><div class="meta">Meiste Abschlüsse</div></div><span id="sTopDriver" class="badge green">–</span></div>
+ </div>
+
  <div id="warning" class="warning hidden"><div class="warnicon">⚠️</div><div><b>Handlungsbedarf</b><div id="warningText"></div></div></div>
  <div class="toolbar"><div class="search"><input id="search" placeholder="Kunde, Adresse, Auftrag oder Tour" oninput="render()"></div><button class="chip" onclick="sortAsc=!sortAsc;render()">↕</button></div>
  <div class="toolbar" style="margin-top:0"><select id="tourFilter" class="chip" onchange="render()"><option value="">Alle Touren</option><option>G72</option><option>G61</option><option>G63</option><option>G62</option><option>G60</option><option>G59</option><option>K57</option></select><select id="statusFilter" class="chip" onchange="render()"><option value="">Alle Status</option><option>Offen</option><option>Erledigt</option></select></div>
@@ -75,6 +89,19 @@ body.dark{--bg:#08111d;--surface:#111c2b;--text:#f4f7fb;--muted:#9eb0c5;--line:#
   <div class="settingrow"><div><b>Daten exportieren</b></div><button class="chip" onclick="exportData()">Export</button></div>
   <div class="settingrow"><div><b>Daten importieren</b></div><label class="chip">Import<input type="file" accept=".json" hidden onchange="importData(event)"></label></div>
  </div>
+
+ <div class="panel">
+  <h3>Live-Synchronisierung</h3>
+  <div id="syncState" class="note">Noch nicht verbunden. Lokale Daten bleiben weiterhin verfügbar.</div>
+  <label>Supabase Projekt-URL<input id="supabaseUrl" placeholder="https://…supabase.co"></label>
+  <label style="display:block;margin-top:10px">Supabase Anon Key<input id="supabaseKey" type="password" placeholder="Öffentlicher anon key"></label>
+  <div class="actions" style="grid-template-columns:1fr 1fr;margin-top:12px">
+   <button class="btn dark" onclick="connectCloud()">Verbinden</button>
+   <button class="btn secondary" onclick="disconnectCloud()">Trennen</button>
+  </div>
+  <div class="meta" style="margin-top:10px">Bei aktiver Verbindung werden Abholungen aller Kollegen automatisch geladen und Änderungen übertragen.</div>
+ </div>
+
  <div class="panel"><h3>Aktivitätsverlauf</h3><div id="activityList" class="timeline"></div></div>
 </section>
 </main>
@@ -92,7 +119,7 @@ body.dark{--bg:#08111d;--surface:#111c2b;--text:#f4f7fb;--muted:#9eb0c5;--line:#
 <div id="newModal" class="modal"><div class="sheet">
  <div class="sheethead"><h2>Neue Abholung</h2><button class="close" onclick="closeNew()">×</button></div>
  <form id="form" class="formgrid">
-  <div class="photo"><b>Abholschein fotografieren</b><div class="meta">Die KI erkennt Tour, Kunde, Adresse und Auftragsnummer.</div><input id="slip" type="file" accept="image/*" capture="environment" required><img id="slipPreview" class="hidden"><button id="ocr" class="btn secondary" type="button" style="margin-top:10px">KI-Auswertung starten</button><div id="ocrStatus" class="meta"></div><div id="tourStatus" class="note hidden"></div></div>
+  <div class="photo"><b>Abholschein fotografieren</b><div class="meta">Foto aufnehmen – die KI erkennt Tour, Kunde, vollständige Adresse und Auftragsnummer.</div><input id="slip" type="file" accept="image/*" capture="environment" required><img id="slipPreview" class="hidden"><button id="ocr" class="btn secondary" type="button" style="margin-top:10px">KI-Auswertung starten</button><div id="ocrStatus" class="meta"></div><div id="tourStatus" class="note hidden"></div></div>
   <div class="formgrid two">
    <label>Kunde<input id="customer" required></label><label>Auftrag<input id="order"></label>
    <label>Adresse<input id="address" required></label><label>Tour<select id="tour" required><option value="">Bitte wählen</option><option>G72</option><option>G61</option><option>G63</option><option>G62</option><option>G60</option><option>G59</option><option>K57</option></select></label>
@@ -115,12 +142,69 @@ let jobs=JSON.parse(localStorage.getItem('abholmanager-v3-premium-jobs')||localS
 let activities=JSON.parse(localStorage.getItem('abholmanager-v3-premium-activities')||'[]');
 let currentDriver=localStorage.getItem('abholmanager-v3-premium-driver')||'Fahrer 1';
 let sortAsc=true,finishId=null,slipData='',proofData='';
+let db=null,cloudChannel=null;
+const CLOUD_URL_KEY='abholmanager-supabase-url',CLOUD_ANON_KEY='abholmanager-supabase-key';
 const $=id=>document.getElementById(id),iso=d=>d.toISOString().slice(0,10);
 const esc=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const save=()=>localStorage.setItem('abholmanager-v3-premium-jobs',JSON.stringify(jobs));
+const save=()=>{localStorage.setItem('abholmanager-v3-premium-jobs',JSON.stringify(jobs));};
 function saveAct(){localStorage.setItem('abholmanager-v3-premium-activities',JSON.stringify(activities))}
 function addActivity(text){activities.unshift({text,time:new Date().toISOString(),driver:currentDriver});activities=activities.slice(0,100);saveAct();renderActivity()}
 function changeDriver(v){currentDriver=v;localStorage.setItem('abholmanager-v3-premium-driver',v);addActivity('Fahrerprofil aktiviert')}
+
+function cloudConfig(){
+ return {url:localStorage.getItem(CLOUD_URL_KEY)||'',key:localStorage.getItem(CLOUD_ANON_KEY)||''}
+}
+function setSyncState(text,type='info'){
+ const el=$('syncState'); if(!el)return; el.textContent=text;
+ el.style.background=type==='ok'?'#e9fbf3':type==='error'?'#fff1f0':'#edf4ff';
+ el.style.color=type==='ok'?'#067647':type==='error'?'#b42318':'#174ea6';
+}
+async function connectCloud(){
+ const url=$('supabaseUrl').value.trim(),key=$('supabaseKey').value.trim();
+ if(!url||!key){setSyncState('Bitte Projekt-URL und Anon Key eintragen.','error');return}
+ localStorage.setItem(CLOUD_URL_KEY,url);localStorage.setItem(CLOUD_ANON_KEY,key);
+ try{
+  db=supabase.createClient(url,key);
+  const {error}=await db.from('pickups').select('id').limit(1);
+  if(error)throw error;
+  setSyncState('Live-Synchronisierung aktiv.','ok');
+  await loadCloudJobs(); subscribeCloud();
+ }catch(e){db=null;setSyncState('Verbindung fehlgeschlagen: '+(e.message||e),'error')}
+}
+function disconnectCloud(){
+ if(cloudChannel&&db)db.removeChannel(cloudChannel);
+ db=null;cloudChannel=null;localStorage.removeItem(CLOUD_URL_KEY);localStorage.removeItem(CLOUD_ANON_KEY);
+ $('supabaseUrl').value='';$('supabaseKey').value='';setSyncState('Cloud-Verbindung getrennt. Lokaler Betrieb aktiv.')
+}
+async function initCloud(){
+ const c=cloudConfig();$('supabaseUrl').value=c.url;$('supabaseKey').value=c.key;
+ if(!c.url||!c.key)return;
+ try{db=supabase.createClient(c.url,c.key);const {error}=await db.from('pickups').select('id').limit(1);if(error)throw error;setSyncState('Live-Synchronisierung aktiv.','ok');await loadCloudJobs();subscribeCloud()}
+ catch(e){db=null;setSyncState('Gespeicherte Cloud-Verbindung konnte nicht hergestellt werden.','error')}
+}
+async function loadCloudJobs(){
+ if(!db)return;
+ const {data,error}=await db.from('pickups').select('*').order('created_at',{ascending:false});
+ if(error){setSyncState('Cloud-Daten konnten nicht geladen werden.','error');return}
+ jobs=(data||[]).map(fromCloud);save();render()
+}
+function fromCloud(r){
+ return {id:r.id,customer:r.customer||'',order:r.order_no||'',address:r.address||'',tour:r.tour||'',created:r.captured_date||'',due:r.due_date||'',priority:r.priority||'Normal',driver:r.driver||'',memo:r.memo||'',status:r.status||'Offen',slip:r.slip_photo||'',proof:r.proof_photo||'',completedAt:r.completed_at||'',completedBy:r.completed_by||''}
+}
+function toCloud(j){
+ return {id:j.id,customer:j.customer,order_no:j.order,address:j.address,tour:j.tour,captured_date:j.created,due_date:j.due,priority:j.priority,driver:j.driver,memo:j.memo,status:j.status,slip_photo:j.slip,proof_photo:j.proof,completed_at:j.completedAt||null,completed_by:j.completedBy||null,updated_at:new Date().toISOString()}
+}
+async function syncJob(j){
+ if(!db)return;
+ const {error}=await db.from('pickups').upsert(toCloud(j));
+ if(error)setSyncState('Änderung lokal gespeichert, Cloud-Übertragung fehlgeschlagen.','error')
+}
+function subscribeCloud(){
+ if(!db)return;
+ if(cloudChannel)db.removeChannel(cloudChannel);
+ cloudChannel=db.channel('pickups-live').on('postgres_changes',{event:'*',schema:'public',table:'pickups'},()=>loadCloudJobs()).subscribe()
+}
+
 function daysLeft(j){return Math.ceil((new Date(j.due+'T23:59:59')-new Date())/86400000)}
 function state(j){if(j.status==='Erledigt')return{text:'Erledigt',cls:'green',rank:4};const d=daysLeft(j);if(d<0)return{text:'Überfällig',cls:'red',rank:0};if(d===0)return{text:'Heute fällig',cls:'red',rank:1};if(d<=2)return{text:'Bald fällig',cls:'amber',rank:2};return{text:'Offen',cls:'',rank:3}}
 function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));render()}
@@ -135,11 +219,11 @@ function render(){
  $('mSoon').textContent=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)>0&&daysLeft(j)<=2).length;
  $('mDone').textContent=jobs.filter(j=>j.status==='Erledigt').length;
  const c=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)<=0).length;$('warning').classList.toggle('hidden',!c);$('warningText').textContent=c+' Abholung(en) heute fällig oder überfällig.';
- renderCalendar();renderMap();renderReminders();renderActivity()
+ renderCalendar();renderMap();renderReminders();renderActivity();renderRealStats()
 }
 function card(j){const s=state(j),img=j.slip?`<img class="thumb" src="${j.slip}">`:`<div class="thumb">📄</div>`;return `<article class="job"><div class="jobtop">${img}<div><h4>${esc(j.customer)}</h4><div class="meta">📍 ${esc(j.address)}</div><div class="meta">🚚 Tour ${esc(j.tour)} ${j.driver?'· 👤 '+esc(j.driver):''}</div><div class="meta">📅 ${esc(j.due)}</div><div class="badges"><span class="badge ${s.cls}">${s.text}</span><span class="badge">${esc(j.priority)}</span></div></div></div><div class="actions"><button class="btn secondary" onclick="route('${encodeURIComponent(j.address)}')">Route</button>${j.status==='Erledigt'?'<button class="btn secondary" disabled>Erledigt</button><button class="btn secondary" disabled>Nachweis</button>':`<button class="btn dark" onclick="assignToMe('${j.id}')">Übernehmen</button><button class="btn" onclick="openFinish('${j.id}')">Abschließen</button>`}</div></article>`}
 function route(a){location.href='https://maps.apple.com/?daddr='+a}
-function assignToMe(id){const j=jobs.find(x=>x.id===id);j.driver=currentDriver;save();addActivity('Abholung '+(j.order||j.customer)+' übernommen · '+j.tour);render()}
+function assignToMe(id){const j=jobs.find(x=>x.id===id);j.driver=currentDriver;save();syncJob(j);addActivity('Abholung '+(j.order||j.customer)+' übernommen · '+j.tour);render()}
 function openNew(){$('newModal').classList.add('open');const d=new Date();$('created').value=iso(d);d.setDate(d.getDate()+4);$('due').value=iso(d);$('driver').value=currentDriver}
 function closeNew(){$('newModal').classList.remove('open')}
 function fileToData(f,cb){const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(f)}
@@ -153,15 +237,38 @@ $('ocr').onclick=async()=>{
   const context=lines.map(x=>x.toUpperCase().replace(/[\s._–—-]+/g,''));const contextual=TOURS.filter(t=>context.some(l=>/(TOUR|ROUTE|BEZIRK)/.test(l)&&l.includes(t)));const matches=contextual.length?contextual:TOURS.filter(t=>compact.includes(t));
   if(matches.length===1){$('tour').value=matches[0];$('tourStatus').textContent='🚚 Tour erkannt: '+matches[0];$('tourStatus').classList.remove('hidden')}else{$('tour').value='';$('tourStatus').textContent=matches.length?'Mehrere Touren erkannt: '+matches.join(', ')+'. Bitte prüfen.':'Keine eindeutige Tour erkannt. Bitte auswählen.';$('tourStatus').classList.remove('hidden')}
   const order=text.match(/[A-ZÄÖÜ]{1,5}[-\s]?\d{3,}/i);if(order)$('order').value=order[0].replace(/\s/g,'-');
-  const addr=lines.find(x=>/\d/.test(x)&&/(straße|strasse|weg|platz|gasse|allee|ring)/i.test(x));if(addr)$('address').value=addr;
+  const streetIndex=lines.findIndex(x=>/\d/.test(x)&&/(straße|strasse|str\.|weg|platz|gasse|allee|ring|zeile|markt|ufer)/i.test(x));
+  if(streetIndex>=0){
+   let detected=lines[streetIndex];
+   const next=lines[streetIndex+1]||'';
+   if(/\b\d{4,5}\b/.test(next))detected+=' '+next;
+   $('address').value=detected;
+  }else{
+   const postalIndex=lines.findIndex(x=>/\b\d{4,5}\b/.test(x));
+   if(postalIndex>0)$('address').value=(lines[postalIndex-1]+' '+lines[postalIndex]).trim();
+  }
   const comp=lines.find(x=>/(gmbh|ag|kg|logistik|handel|firma)/i.test(x));if(comp)$('customer').value=comp;else if(lines[0])$('customer').value=lines[0];
   $('ocrStatus').textContent='Auswertung fertig. Bitte prüfen.';
  }catch(e){$('ocrStatus').textContent='Erkennung fehlgeschlagen. Bitte manuell eintragen.'}finally{$('ocr').disabled=false}
 }
-$('form').onsubmit=e=>{e.preventDefault();const j={id:crypto.randomUUID(),customer:$('customer').value.trim(),order:$('order').value.trim(),address:$('address').value.trim(),tour:$('tour').value,created:$('created').value,due:$('due').value,priority:$('priority').value,driver:$('driver').value.trim(),memo:$('memo').value.trim(),status:'Offen',slip:slipData,proof:'',completedAt:''};jobs.unshift(j);save();addActivity('Neue Abholung erfasst · '+j.tour);e.target.reset();slipData='';$('slipPreview').classList.add('hidden');closeNew();render()}
+$('form').onsubmit=e=>{e.preventDefault();const j={id:crypto.randomUUID(),customer:$('customer').value.trim(),order:$('order').value.trim(),address:$('address').value.trim(),tour:$('tour').value,created:$('created').value,due:$('due').value,priority:$('priority').value,driver:$('driver').value.trim(),memo:$('memo').value.trim(),status:'Offen',slip:slipData,proof:'',completedAt:''};jobs.unshift(j);save();syncJob(j);addActivity('Neue Abholung erfasst · '+j.tour);e.target.reset();slipData='';$('slipPreview').classList.add('hidden');closeNew();render()}
 function openFinish(id){finishId=id;proofData='';$('proof').value='';$('proofPreview').classList.add('hidden');$('finishModal').classList.add('open')}
 function closeFinish(){$('finishModal').classList.remove('open')}
-function confirmFinish(){if(!proofData){alert('Bitte Abschlussfoto aufnehmen.');return}const j=jobs.find(x=>x.id===finishId);j.status='Erledigt';j.proof=proofData;j.completedAt=new Date().toISOString();j.completedBy=currentDriver;save();addActivity('Abholung '+(j.order||j.customer)+' abgeschlossen · '+j.tour);closeFinish();render()}
+function confirmFinish(){if(!proofData){alert('Bitte Abschlussfoto aufnehmen.');return}const j=jobs.find(x=>x.id===finishId);j.status='Erledigt';j.proof=proofData;j.completedAt=new Date().toISOString();j.completedBy=currentDriver;save();syncJob(j);addActivity('Abholung '+(j.order||j.customer)+' abgeschlossen · '+j.tour);closeFinish();render()}
+
+function renderRealStats(){
+ const total=jobs.length,done=jobs.filter(j=>j.status==='Erledigt');
+ $('sTotal').textContent=total;
+ $('sRate').textContent=total?Math.round(done.length/total*100)+'%':'0%';
+ $('sOverdue').textContent=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)<0).length;
+ const durations=done.filter(j=>j.completedAt&&j.created).map(j=>(new Date(j.completedAt)-new Date(j.created+'T00:00:00'))/86400000).filter(x=>x>=0);
+ $('sAvg').textContent=durations.length?(durations.reduce((a,b)=>a+b,0)/durations.length).toFixed(1)+' T':'–';
+ const tourCounts={};jobs.forEach(j=>{if(j.tour)tourCounts[j.tour]=(tourCounts[j.tour]||0)+1});
+ const topTour=Object.entries(tourCounts).sort((a,b)=>b[1]-a[1])[0];$('sTopTour').textContent=topTour?topTour[0]+' · '+topTour[1]:'–';
+ const driverCounts={};done.forEach(j=>{const d=j.completedBy||j.driver;if(d)driverCounts[d]=(driverCounts[d]||0)+1});
+ const topDriver=Object.entries(driverCounts).sort((a,b)=>b[1]-a[1])[0];$('sTopDriver').textContent=topDriver?topDriver[0]+' · '+topDriver[1]:'–';
+}
+
 function renderCalendar(){const el=$('calendarList');if(!el)return;const list=[...jobs].sort((a,b)=>a.due.localeCompare(b.due));el.innerHTML=list.length?list.map(j=>{const d=new Date(j.due+'T12:00:00');return `<div class="calendarrow"><div style="display:flex;gap:12px;align-items:center"><div class="datebox">${d.getDate()}<br><small>${d.toLocaleString('de',{month:'short'})}</small></div><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.tour)} · ${esc(j.address)}</div></div></div><span class="badge ${state(j).cls}">${state(j).text}</span></div>`}).join(''):'<div class="empty">Keine Termine.</div>'}
 function renderMap(){const el=$('mapList');if(!el)return;el.innerHTML=jobs.filter(j=>j.status!=='Erledigt').map(j=>`<div class="maprow"><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.address)} · ${esc(j.tour)}</div></div><button class="chip" onclick="route('${encodeURIComponent(j.address)}')">Öffnen</button></div>`).join('')||'<div class="empty">Keine offenen Routen.</div>'}
 function renderReminders(){const el=$('reminderList');if(!el)return;el.innerHTML=jobs.filter(j=>j.status!=='Erledigt').sort((a,b)=>a.due.localeCompare(b.due)).map(j=>`<div class="settingrow"><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.tour)} · ${state(j).text}</div></div><span class="badge ${state(j).cls}">${esc(j.due)}</span></div>`).join('')||'<div class="empty">Keine Erinnerungen.</div>'}
@@ -171,6 +278,6 @@ function toggleDark(){document.body.classList.toggle('dark');localStorage.setIte
 function exportData(){const b=new Blob([JSON.stringify({jobs,activities},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='AbholManager-V3-Backup.json';a.click()}
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);jobs=d.jobs||d;activities=d.activities||[];save();saveAct();render();alert('Import erfolgreich.')}catch{alert('Import fehlgeschlagen.')}};r.readAsText(f)}
 $('driverProfile').value=currentDriver;if(localStorage.getItem('abholmanager-v3-premium-dark')==='1')document.body.classList.add('dark');
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');render();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');render();initCloud();
 </script>
 </body></html>

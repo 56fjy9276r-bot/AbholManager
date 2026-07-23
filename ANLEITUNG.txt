@@ -26,3 +26,17 @@ INSTALLATION MIT NETLIFY:
 2. Den Ordner AbholManager_V2_Bild2 bei Netlify Drop hochladen.
 3. Link in Safari öffnen.
 4. Teilen > Zum Home-Bildschirm.
+
+
+VERSION 3 – NEU
+- Fahrerprofile und aktiver Fahrer
+- alle Fahrer können alle Touren sehen
+- Abholungen können einem Fahrer zugewiesen werden
+- Aktivitätsverlauf
+- verbesserte KI-Tourerkennung mit Kontextwörtern Tour/Route/Bezirk
+- Abschluss wird mit Fahrer und Zeitpunkt dokumentiert
+- Datenmigration aus Version 2
+- Cloud-Anbindung vorbereitet, aber noch nicht aktiv
+
+Für echte Live-Synchronisierung zwischen mehreren iPhones werden später Zugangsdaten
+für eine Cloud-Datenbank benötigt.

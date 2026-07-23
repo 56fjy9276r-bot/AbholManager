@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b69d1">
-<title>AbholManager V2</title>
+<title>AbholManager V3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -41,15 +41,15 @@ body.dark{--bg:#0e1724;--card:#172234;--text:#f1f6fc;--muted:#9aabc0;--line:#2a3
 <div class="app">
 <header>
  <div class="top">
-  <div class="brand"><div class="logo">🚚</div><div><h1>AbholManager</h1><small>Version 2 · Team-Test</small></div></div>
+  <div class="brand"><div class="logo">🚚</div><div><h1>AbholManager</h1><small>Version 3 · Team-Test</small></div></div>
   <button class="headbtn" onclick="go('reminders')">🔔</button>
  </div>
- <div class="greet"><h2>Guten Tag, Fahrer</h2><p>Alle Touren und Abholungen auf einen Blick.</p></div>
+ <div class="greet"><h2>Guten Tag, <span id="currentDriverName">Fahrer</span></h2><p>Alle Touren und Abholungen auf einen Blick.</p></div>
 </header>
 
 <main>
 <section id="home" class="view active">
- <div class="cloud">☁️ <div><b>Team-Modus vorbereitet</b><br><small>Alle Fahrer sehen alle Touren. Für echte Live-Synchronisierung wird später eine Cloud-Datenbank verbunden.</small></div></div>
+ <div class="cloud" id="cloudBanner">☁️ <div><b>Team-Modus</b><br><small id="cloudText">Lokaler Testbetrieb. Alle Touren sind sichtbar; Live-Synchronisierung wird nach Cloud-Verbindung aktiviert.</small></div></div>
  <div class="grid">
   <div class="metric"><small>Offen</small><div class="n" id="mOpen">0</div></div>
   <div class="metric red"><small>Kritisch</small><div class="n" id="mCritical">0</div></div>
@@ -94,7 +94,17 @@ body.dark{--bg:#0e1724;--card:#172234;--text:#f1f6fc;--muted:#9aabc0;--line:#2a3
   <div class="settings-row"><div><b>Daten exportieren</b><div class="meta">Lokale Sicherung als JSON</div></div><button class="chip" onclick="exportData()">Export</button></div>
   <div class="settings-row"><div><b>Daten importieren</b><div class="meta">Sicherung wiederherstellen</div></div><label class="chip">Import<input type="file" accept=".json" hidden onchange="importData(event)"></label></div>
  </div>
- <div class="panel"><h3>Fahrerzugriff</h3>
+ 
+ <div class="panel"><h3>Aktiver Fahrer</h3>
+  <label>Fahrerprofil
+   <select id="driverProfile" onchange="changeDriver(this.value)">
+    <option>Fahrer 1</option><option>Fahrer 2</option><option>Fahrer 3</option><option>Disposition</option>
+   </select>
+  </label>
+  <div class="note">Alle Fahrer haben Zugriff auf alle Touren. Änderungen werden in dieser Testversion nur auf diesem Gerät gespeichert.</div>
+ </div>
+ <div class="panel"><h3>Aktivitätsverlauf</h3><div id="activityList"></div></div>
+<div class="panel"><h3>Fahrerzugriff</h3>
   <div class="teamuser"><div class="avatar">F1</div><div><b>Fahrer 1</b><div class="meta">Zugriff auf alle Touren</div></div></div>
   <div class="teamuser"><div class="avatar">F2</div><div><b>Fahrer 2</b><div class="meta">Zugriff auf alle Touren</div></div></div>
   <div class="teamuser"><div class="avatar">D</div><div><b>Disposition</b><div class="meta">Übersicht und Verwaltung</div></div></div>
@@ -145,10 +155,16 @@ body.dark{--bg:#0e1724;--card:#172234;--text:#f1f6fc;--muted:#9aabc0;--line:#2a3
 
 <script>
 const TOURS=['G72','G61','G63','G62','G60','G59','K57'];
-let jobs=JSON.parse(localStorage.getItem('abholmanager-v2-jobs')||'[]');
+let jobs=JSON.parse(localStorage.getItem('abholmanager-v3-jobs')||localStorage.getItem('abholmanager-v2-jobs')||'[]');
+let activities=JSON.parse(localStorage.getItem('abholmanager-v3-activities')||'[]');
+let currentDriver=localStorage.getItem('abholmanager-v3-driver')||'Fahrer 1';
 let sortAsc=true,statusFilter='',finishId=null,slipData='',proofData='';
 const $=id=>document.getElementById(id);
-const save=()=>localStorage.setItem('abholmanager-v2-jobs',JSON.stringify(jobs));
+const save=()=>localStorage.setItem('abholmanager-v3-jobs',JSON.stringify(jobs));
+const saveActivities=()=>localStorage.setItem('abholmanager-v3-activities',JSON.stringify(activities));
+function addActivity(text){activities.unshift({text,time:new Date().toISOString(),driver:currentDriver});activities=activities.slice(0,100);saveActivities();renderActivity()}
+function changeDriver(name){currentDriver=name;localStorage.setItem('abholmanager-v3-driver',name);document.getElementById('currentDriverName').textContent=name;addActivity('Fahrerprofil gewechselt')}
+
 const iso=d=>d.toISOString().slice(0,10);
 const esc=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 function daysLeft(j){return Math.ceil((new Date(j.due+'T23:59:59')-new Date())/86400000)}
@@ -172,9 +188,10 @@ function render(){
 }
 function card(j){
  const s=state(j),img=j.slip?`<img class="thumb" src="${j.slip}">`:`<div class="thumb">📄</div>`;
- return `<article class="job"><div class="jobtop">${img}<div><h4>${esc(j.customer)}</h4><div class="meta">📍 ${esc(j.address)}</div><div class="meta">🚚 Tour ${esc(j.tour)} ${j.driver?'· 👤 '+esc(j.driver):''}</div><div class="meta">📅 Fällig: ${esc(j.due)}</div><div class="badges"><span class="badge ${s.cls}">${s.text}</span><span class="badge">${esc(j.priority)}</span></div></div></div><div class="actions"><button class="btn secondary" onclick="route('${encodeURIComponent(j.address)}')">Route</button>${j.status==='Erledigt'?'<button class="btn secondary" disabled>Erledigt</button>':`<button class="btn" onclick="openFinish('${j.id}')">Abschließen</button>`}</div></article>`
+ return `<article class="job"><div class="jobtop">${img}<div><h4>${esc(j.customer)}</h4><div class="meta">📍 ${esc(j.address)}</div><div class="meta">🚚 Tour ${esc(j.tour)} ${j.driver?'· 👤 '+esc(j.driver):''}</div><div class="meta">📅 Fällig: ${esc(j.due)}</div><div class="badges"><span class="badge ${s.cls}">${s.text}</span><span class="badge">${esc(j.priority)}</span></div></div></div><div class="actions"><button class="btn secondary" onclick="route('${encodeURIComponent(j.address)}')">Route</button>${j.status==='Erledigt'?'<button class="btn secondary" disabled>Erledigt</button>':`<button class="btn" onclick="assignToMe('${j.id}')">${j.driver?'Übernehmen':'Mir zuweisen'}</button><button class="btn" onclick="openFinish('${j.id}')">Abschließen</button>`}</div></article>`
 }
 function route(a){location.href='https://maps.apple.com/?daddr='+a}
+function assignToMe(id){const j=jobs.find(x=>x.id===id);if(!j)return;j.driver=currentDriver;save();addActivity('Abholung '+(j.order||j.customer)+' übernommen · Tour '+j.tour);render()}
 function openNew(){ $('newModal').classList.add('open');const d=new Date();$('created').value=iso(d);d.setDate(d.getDate()+4);$('due').value=iso(d)}
 function closeNew(){$('newModal').classList.remove('open')}
 function fileToData(file,cb){const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(file)}
@@ -187,8 +204,12 @@ $('ocr').onclick=async()=>{
   const r=await Tesseract.recognize($('slip').files[0],'deu');
   const text=r.data.text.replace(/\r/g,'');const compact=text.toUpperCase().replace(/[\s._–—-]+/g,'');const lines=text.split('\n').map(x=>x.trim()).filter(Boolean);
   const matches=TOURS.filter(t=>compact.includes(t));
-  if(matches.length===1){$('tour').value=matches[0];$('tourStatus').textContent='🚚 Tour automatisch erkannt: '+matches[0];$('tourStatus').classList.remove('hidden')}
-  else if(matches.length>1){$('tour').value='';$('tourStatus').textContent='⚠️ Mehrere Touren erkannt: '+matches.join(', ')+'. Bitte prüfen.';$('tourStatus').classList.remove('hidden')}
+  // Bevorzugt Tourcodes, die in derselben Zeile wie Tour/Route/Bezirk stehen.
+  const contextLines=lines.map(x=>x.toUpperCase().replace(/[\s._–—-]+/g,''));
+  const contextual=TOURS.filter(t=>contextLines.some(l=>/(TOUR|ROUTE|BEZIRK)/.test(l)&&l.includes(t)));
+  const finalMatches=contextual.length?contextual:matches;
+  if(finalMatches.length===1){$('tour').value=finalMatches[0];$('tourStatus').textContent='🚚 Tour automatisch erkannt: '+finalMatches[0];$('tourStatus').classList.remove('hidden')}
+  else if(finalMatches.length>1){$('tour').value='';$('tourStatus').textContent='⚠️ Mehrere Touren erkannt: '+finalMatches.join(', ')+'. Bitte prüfen.';$('tourStatus').classList.remove('hidden')}
   else{$('tour').value='';$('tourStatus').textContent='ℹ️ Keine eindeutige Tour erkannt. Bitte manuell wählen.';$('tourStatus').classList.remove('hidden')}
   const order=text.match(/[A-ZÄÖÜ]{1,5}[-\s]?\d{3,}/i);if(order)$('order').value=order[0].replace(/\s/g,'-');
   const addr=lines.find(x=>/\d/.test(x)&&/(straße|strasse|weg|platz|gasse|allee|ring)/i.test(x));if(addr)$('address').value=addr;
@@ -198,13 +219,14 @@ $('ocr').onclick=async()=>{
  finally{$('ocr').disabled=false}
 }
 $('form').onsubmit=e=>{
- e.preventDefault();jobs.unshift({id:crypto.randomUUID(),customer:$('customer').value.trim(),order:$('order').value.trim(),address:$('address').value.trim(),tour:$('tour').value,created:$('created').value,due:$('due').value,priority:$('priority').value,driver:$('driver').value.trim(),memo:$('memo').value.trim(),status:'Offen',slip:slipData,proof:'',completedAt:''});save();e.target.reset();slipData='';$('slipPreview').classList.add('hidden');$('tourStatus').classList.add('hidden');closeNew();go('home')
+ e.preventDefault();jobs.unshift({id:crypto.randomUUID(),customer:$('customer').value.trim(),order:$('order').value.trim(),address:$('address').value.trim(),tour:$('tour').value,created:$('created').value,due:$('due').value,priority:$('priority').value,driver:$('driver').value.trim(),memo:$('memo').value.trim(),status:'Offen',slip:slipData,proof:'',completedAt:''});save();addActivity('Neue Abholung erfasst · Tour '+$('tour').value);e.target.reset();slipData='';$('slipPreview').classList.add('hidden');$('tourStatus').classList.add('hidden');closeNew();go('home')
 }
 function openFinish(id){finishId=id;proofData='';$('proof').value='';$('proofPreview').classList.add('hidden');$('finishModal').classList.add('open')}
 function closeFinish(){$('finishModal').classList.remove('open')}
-function confirmFinish(){if(!proofData){alert('Bitte zuerst ein Abschlussfoto aufnehmen.');return}const j=jobs.find(x=>x.id===finishId);j.status='Erledigt';j.proof=proofData;j.completedAt=new Date().toISOString();save();closeFinish();render()}
+function confirmFinish(){if(!proofData){alert('Bitte zuerst ein Abschlussfoto aufnehmen.');return}const j=jobs.find(x=>x.id===finishId);j.status='Erledigt';j.proof=proofData;j.completedAt=new Date().toISOString();j.completedBy=currentDriver;save();addActivity('Abholung '+(j.order||j.customer)+' abgeschlossen · Tour '+j.tour);closeFinish();render()}
 function renderCalendar(){const el=$('calendarList');if(!el)return;const list=[...jobs].sort((a,b)=>a.due.localeCompare(b.due));el.innerHTML=list.length?list.map(j=>{const d=new Date(j.due+'T12:00:00');return `<div class="calendar-day"><div class="datebox">${d.getDate()}<br><small>${d.toLocaleString('de',{month:'short'})}</small></div><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.tour)} · ${esc(j.address)}</div></div></div>`}).join(''):'<div class="empty">Keine Termine vorhanden.</div>'}
 function renderMap(){const el=$('mapList');if(!el)return;el.innerHTML=jobs.filter(j=>j.status!=='Erledigt').map(j=>`<div class="mapcard"><b>${esc(j.customer)}</b><div class="meta">${esc(j.address)} · Tour ${esc(j.tour)}</div><button class="btn secondary" onclick="route('${encodeURIComponent(j.address)}')">In Apple Karten öffnen</button></div>`).join('')||'<div class="empty">Keine offenen Routen.</div>'}
+function renderActivity(){const el=document.getElementById('activityList');if(!el)return;el.innerHTML=activities.length?activities.slice(0,20).map(a=>`<div class="settings-row"><div><b>${esc(a.driver)}</b><div class="meta">${esc(a.text)}</div></div><small>${new Date(a.time).toLocaleString('de-DE')}</small></div>`).join(''):'<div class="empty">Noch keine Aktivitäten.</div>'}
 function renderReminders(){const el=$('reminderList');if(!el)return;const list=jobs.filter(j=>j.status!=='Erledigt').sort((a,b)=>a.due.localeCompare(b.due));el.innerHTML=list.map(j=>`<div class="settings-row"><div><b>${esc(j.customer)}</b><div class="meta">${state(j).text} · ${esc(j.tour)}</div></div><span class="badge ${state(j).cls}">${esc(j.due)}</span></div>`).join('')||'<div class="empty">Keine Erinnerungen.</div>'}
 async function enableNotifications(){if(!('Notification'in window)){alert('Benachrichtigungen werden hier nicht unterstützt.');return}const p=await Notification.requestPermission();if(p==='granted')new Notification('AbholManager',{body:'Erinnerungen sind aktiviert.'})}
 function toggleDark(){document.body.classList.toggle('dark');$('darkSwitch').classList.toggle('on',document.body.classList.contains('dark'));localStorage.setItem('abholmanager-dark',document.body.classList.contains('dark')?'1':'0')}
@@ -212,7 +234,9 @@ function exportData(){const b=new Blob([JSON.stringify(jobs,null,2)],{type:'appl
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{jobs=JSON.parse(r.result);save();render();alert('Import erfolgreich.')}catch{alert('Datei konnte nicht importiert werden.')}};r.readAsText(f)}
 if(localStorage.getItem('abholmanager-dark')==='1'){document.body.classList.add('dark');$('darkSwitch').classList.add('on')}
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
-render();
+document.getElementById('driverProfile').value=currentDriver;
+document.getElementById('currentDriverName').textContent=currentDriver;
+renderActivity();render();
 </script>
 </body>
 </html>

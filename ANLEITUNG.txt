@@ -1,42 +1,29 @@
-ABHOLMANAGER VERSION 2 – BILD-2-DESIGN
+ABHOLMANAGER VERSION 3 PREMIUM
 
-Enthalten:
-- modernes Dashboard im Stil des zweiten Entwurfs
-- Statuskarten: Offen, Kritisch, Bald fällig, Erledigt
-- rote Warnmeldung
-- große Abholungskarten mit Foto
-- Touren: G72, G61, G63, G62, G60, G59, K57
-- KI/OCR erkennt Tourcodes auf fotografierten Abholscheinen
-- automatische Fälligkeit +4 Tage
-- Suche, Sortierung und Tourenfilter
-- Apple-Karten-Routen
-- Kalender und Erinnerungsübersicht
-- Abschlussfoto als Nachweis
-- Hell-/Dunkelmodus
-- Export und Import
-- Fahrerzugriff auf alle Touren vorbereitet
-
-WICHTIG:
-Diese Testversion speichert Daten lokal auf dem jeweiligen Gerät.
-Damit mehrere Fahrer dieselben Daten live sehen, muss später eine Cloud-Datenbank
-wie Supabase oder Firebase verbunden werden.
-
-INSTALLATION MIT NETLIFY:
-1. ZIP-Datei entpacken.
-2. Den Ordner AbholManager_V2_Bild2 bei Netlify Drop hochladen.
-3. Link in Safari öffnen.
-4. Teilen > Zum Home-Bildschirm.
-
-
-VERSION 3 – NEU
-- Fahrerprofile und aktiver Fahrer
-- alle Fahrer können alle Touren sehen
-- Abholungen können einem Fahrer zugewiesen werden
+Deutlich neues Premium-Design:
+- dunkler Premium-Header
+- große Statuskarten
+- roter Warnbereich
+- große Abholungskarten
+- neue iPhone-Navigation
+- Fahrerprofile
+- alle Touren sichtbar
+- Abholungen übernehmen und abschließen
+- KI-/OCR-Tourerkennung
+- Kalender, Karte, Erinnerungen, Einstellungen
 - Aktivitätsverlauf
-- verbesserte KI-Tourerkennung mit Kontextwörtern Tour/Route/Bezirk
-- Abschluss wird mit Fahrer und Zeitpunkt dokumentiert
-- Datenmigration aus Version 2
-- Cloud-Anbindung vorbereitet, aber noch nicht aktiv
+- Export und Import
+- Dark Mode
 
-Für echte Live-Synchronisierung zwischen mehreren iPhones werden später Zugangsdaten
-für eine Cloud-Datenbank benötigt.
+Touren:
+G72, G61, G63, G62, G60, G59, K57
+
+Wichtig:
+Die Testversion speichert lokal. Für echte gemeinsame Daten aller Fahrer muss später
+eine Cloud-Datenbank verbunden werden.
+
+UPLOAD:
+1. ZIP entpacken.
+2. Die 5 Dateien in GitHub hochladen und vorhandene ersetzen.
+3. Commit changes.
+4. Seite neu laden. Der Service Worker dieser Version löscht alte Caches automatisch.

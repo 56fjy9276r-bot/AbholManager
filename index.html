@@ -3,281 +3,164 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#09111f">
-<title>AbholManager V4 Team</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon.svg">
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AbholManager">
+<meta name="theme-color" content="#0f172a">
+<title>AbholManager</title>
 <style>
-:root{
- --bg:#eef2f7;--surface:#ffffff;--text:#101828;--muted:#667085;--line:#e4e7ec;
- --navy:#0b1220;--blue:#0c6ff9;--blue2:#dfeeff;--red:#d92d20;--red2:#fff1f0;
- --amber:#d97706;--amber2:#fff7e8;--green:#067647;--green2:#e9fbf3;
- --shadow:0 16px 40px rgba(15,23,42,.10);--radius:26px
-}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf0f7 0,#f6f8fb 45%,#eef2f7 100%);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:110px}
-.hero{background:
-radial-gradient(circle at 85% 10%,rgba(72,142,255,.35),transparent 28%),
-linear-gradient(145deg,#07111f,#102b4e 55%,#0d63c8);
-color:white;padding:calc(20px + env(safe-area-inset-top)) 20px 28px;border-radius:0 0 34px 34px;box-shadow:0 18px 45px rgba(3,18,40,.25)}
-.top{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;gap:13px;align-items:center}.logo{width:58px;height:58px;border-radius:19px;background:linear-gradient(145deg,#fff,#dbeafe);display:grid;place-items:center;color:#0c6ff9;font-size:31px;box-shadow:0 10px 25px rgba(0,0,0,.22)}.brand h1{font-size:25px;margin:0}.brand small{opacity:.75}.iconbtn{width:46px;height:46px;border:1px solid #ffffff22;background:#ffffff18;color:#fff;border-radius:16px;font-size:20px}
-.welcome{margin-top:23px}.welcome h2{font-size:30px;margin:0 0 5px}.welcome p{margin:0;color:#d7e6fb}
-.driverline{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding:12px 14px;background:#ffffff12;border:1px solid #ffffff1f;border-radius:18px}.avatar{width:40px;height:40px;border-radius:14px;background:white;color:#0c6ff9;display:grid;place-items:center;font-weight:900}.driver{display:flex;gap:10px;align-items:center}.driver select{border:0;background:transparent;color:white;font-weight:800;max-width:150px}.driver select option{color:black}
-main{padding:18px}.view{display:none}.view.active{display:block}
-.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:-2px}.stat{position:relative;overflow:hidden;background:var(--surface);border:1px solid #fff;border-radius:24px;padding:17px;box-shadow:var(--shadow);min-height:116px}.stat:after{content:"";position:absolute;width:72px;height:72px;border-radius:50%;right:-20px;top:-20px;background:#0c6ff914}.stat small{color:var(--muted);font-weight:700}.stat strong{display:block;font-size:34px;margin-top:8px}.stat.red{background:linear-gradient(145deg,#fff,#fff1f0)}.stat.amber{background:linear-gradient(145deg,#fff,#fff8ec)}.stat.green{background:linear-gradient(145deg,#fff,#edfbf5)}
-.warning{margin:16px 0;background:linear-gradient(145deg,#b42318,#e5484d);color:white;border-radius:24px;padding:16px 17px;display:flex;gap:13px;align-items:center;box-shadow:0 14px 30px rgba(217,45,32,.22)}.warning.hidden{display:none}.warning .warnicon{width:46px;height:46px;background:#ffffff1f;border-radius:15px;display:grid;place-items:center;font-size:23px}
-.toolbar{display:flex;gap:10px;align-items:center;margin:18px 0 12px}.search{position:relative;flex:1}.search:before{content:"⌕";position:absolute;left:15px;top:10px;font-size:23px;color:#667085}.search input{padding-left:46px}.chip,select.chip{border:1px solid var(--line);background:white;color:var(--text);border-radius:15px;padding:11px 12px;font-weight:800}
-.sectiontitle{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.sectiontitle h3{margin:0;font-size:22px}
-.job{background:white;border-radius:26px;margin:12px 0;padding:14px;box-shadow:var(--shadow);border:1px solid #fff}.jobtop{display:flex;gap:13px}.thumb{width:104px;height:112px;border-radius:19px;background:linear-gradient(145deg,#dbeafe,#eef6ff);object-fit:cover;display:grid;place-items:center;font-size:34px;flex:none}.job h4{margin:1px 0 5px;font-size:19px}.meta{color:var(--muted);font-size:14px;margin:3px 0}.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.badge{padding:6px 9px;border-radius:999px;font-size:12px;font-weight:900;background:var(--blue2);color:#0958c7}.badge.red{background:var(--red2);color:var(--red)}.badge.amber{background:var(--amber2);color:var(--amber)}.badge.green{background:var(--green2);color:var(--green)}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}.btn{border:0;border-radius:15px;padding:12px;font-weight:900;background:var(--blue);color:white}.btn.secondary{background:#eef3f8;color:#27415e}.btn.dark{background:#101828}
-.panel{background:white;border-radius:26px;padding:18px;box-shadow:var(--shadow);margin:12px 0}.panel h3{margin-top:0}.formgrid{display:grid;gap:13px}.two{grid-template-columns:1fr 1fr}label{font-weight:800;font-size:13px}input,select,textarea{width:100%;margin-top:6px;border:1px solid var(--line);border-radius:15px;background:#fbfcfe;padding:13px;font:inherit}textarea{min-height:82px}.photo{border:2px dashed #b8c7d9;border-radius:22px;padding:17px;text-align:center;background:#f8fbff}.photo img{width:100%;max-height:240px;object-fit:contain;border-radius:16px;margin-top:10px}.note{padding:12px 13px;border-radius:15px;background:#edf4ff;color:#174ea6;margin-top:10px}.timeline{border-left:2px solid #dbe4ee;margin-left:8px;padding-left:16px}.event{position:relative;padding:0 0 17px}.event:before{content:"";position:absolute;left:-22px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px #dfeeff}
-.calendarrow,.settingrow,.maprow{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.datebox{width:58px;border-radius:16px;padding:8px;text-align:center;background:#eef5ff;color:#0958c7;font-weight:900}
-.fab{position:fixed;right:max(20px,calc((100vw - 760px)/2 + 20px));bottom:94px;z-index:5;border:0;border-radius:20px;padding:16px 19px;background:linear-gradient(145deg,#0c6ff9,#0a56c5);color:white;font-weight:900;box-shadow:0 16px 34px rgba(12,111,249,.35)}
-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#ffffffee;backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:9px 6px calc(9px + env(safe-area-inset-bottom));z-index:4}nav button{border:0;background:none;color:#8a98aa;font-size:10px}nav span{display:block;font-size:22px;margin-bottom:2px}nav button.active{color:var(--blue);font-weight:900}
-.modal{position:fixed;inset:0;background:#07111fcc;z-index:20;display:none;align-items:flex-end;justify-content:center}.modal.open{display:flex}.sheet{width:min(760px,100%);max-height:95vh;overflow:auto;background:#eef2f7;border-radius:30px 30px 0 0;padding:19px 18px calc(26px + env(safe-area-inset-bottom))}.sheethead{display:flex;justify-content:space-between;align-items:center}.close{width:38px;height:38px;border-radius:50%;border:0;background:#dde5ef;font-size:20px}
-.hidden{display:none!important}.empty{text-align:center;padding:35px;color:var(--muted)}
-body.dark{--bg:#08111d;--surface:#111c2b;--text:#f4f7fb;--muted:#9eb0c5;--line:#26364b;background:#08111d}body.dark main,body.dark .sheet{background:#08111d}body.dark .stat,body.dark .job,body.dark .panel,body.dark nav{background:#111c2b;color:#f4f7fb}body.dark input,body.dark select,body.dark textarea,body.dark .chip{background:#0b1522;color:white;border-color:#26364b}
-@media(min-width:650px){.summary{grid-template-columns:repeat(4,1fr)}}
+:root{--bg:#eef2f7;--card:#fff;--text:#101828;--muted:#667085;--primary:#2457ff;--primary2:#6d5dfc;--danger:#d92d20;--warn:#b54708;--ok:#067647;--line:#e4e7ec;--glass:rgba(255,255,255,.82);--shadow:0 14px 40px rgba(16,24,40,.10)}
+[data-theme="dark"]{--bg:#0b1220;--card:#111a2b;--text:#f8fafc;--muted:#98a2b3;--primary:#7090ff;--primary2:#9a8cff;--danger:#ff7b72;--warn:#fdb022;--ok:#47cd89;--line:#243047;--glass:rgba(11,18,32,.82);--shadow:0 14px 40px rgba(0,0,0,.32)}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;background:linear-gradient(180deg,var(--bg),color-mix(in srgb,var(--bg) 86%,#b8c5ff));color:var(--text);min-height:100vh}
+button,input,select,textarea{font:inherit}.app{max-width:820px;margin:auto;min-height:100vh;padding-bottom:116px}
+header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top) + 12px) 16px 10px;background:var(--glass);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand h1{font-size:22px;margin:0;letter-spacing:-.35px}.brand .sub{font-size:12px;color:var(--muted)}
+.iconbtn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow)}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:var(--card);border:1px solid var(--line);padding:6px;border-radius:16px;margin-top:13px;box-shadow:var(--shadow)}
+nav button{border:0;background:transparent;padding:10px 4px;border-radius:11px;font-size:12px;font-weight:800;color:var(--muted)}nav button.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+main{padding:14px 16px}.view{display:none}.view.active{display:block}.hero{padding:18px;border-radius:24px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 18px 50px rgba(36,87,255,.25);margin-bottom:14px}.hero small{opacity:.8}.hero h2{margin:6px 0 2px;font-size:27px}.hero p{margin:0;opacity:.9;font-size:13px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric,.card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}.metric{padding:14px;border-radius:18px}.metric b{font-size:27px;display:block}.metric span{font-size:12px;color:var(--muted)}
+.section{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 10px}.section h2{font-size:17px;margin:0}.meta{font-size:13px;color:var(--muted);line-height:1.45}.card{padding:16px;border-radius:20px;margin-bottom:12px}.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.title{font-weight:850}.badge{font-size:11px;padding:6px 9px;border-radius:999px;font-weight:850;white-space:nowrap}.open{background:#eef4ff;color:#3538cd}.warn{background:#fffaeb;color:#b54708}.danger{background:#fef3f2;color:#d92d20}.done{background:#ecfdf3;color:#067647}.tour{background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:0;border-radius:13px;padding:11px 14px;font-weight:800;background:color-mix(in srgb,var(--line) 55%,var(--card));color:var(--text)}.btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}.btn.danger{background:#fef3f2;color:#d92d20}.btn.small{padding:8px 10px;font-size:12px}.btn.full{width:100%}
+.search{position:sticky;top:126px;background:var(--bg);padding:4px 0 10px;z-index:8}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:13px;background:var(--card);color:var(--text);padding:12px}.stack{display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:6px;font-size:13px;font-weight:800}.photo{border:2px dashed color-mix(in srgb,var(--primary) 45%,var(--line));border-radius:18px;padding:17px;text-align:center;background:color-mix(in srgb,var(--primary) 6%,var(--card))}.photo img{max-width:100%;max-height:250px;border-radius:13px;margin-top:10px}.notice{padding:12px;border-radius:13px;background:color-mix(in srgb,var(--primary) 10%,var(--card));color:var(--primary);font-size:13px}.progress{height:9px;background:color-mix(in srgb,var(--line) 70%,var(--card));border-radius:999px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2))}.empty{text-align:center;padding:34px 18px;color:var(--muted)}
+.fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom) + 18px);z-index:25;border:0;border-radius:18px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;padding:15px 18px;font-weight:900;box-shadow:0 16px 40px rgba(36,87,255,.35)}dialog{border:0;border-radius:22px;padding:0;width:calc(100% - 28px);max-width:560px;background:var(--card);color:var(--text)}dialog::backdrop{background:rgba(0,0,0,.5)}.dialog{padding:20px}.toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(20px);background:#101828;color:#fff;padding:11px 15px;border-radius:12px;opacity:0;transition:.2s;z-index:99}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.metrics .metric:last-child{grid-column:1/-1}.jobtop{align-items:flex-start}.jobbadges{display:grid;justify-items:end;gap:6px}}
+.ocrbox{display:none;padding:12px;border-radius:13px;background:color-mix(in srgb,var(--ok) 10%,var(--card));border:1px solid color-mix(in srgb,var(--ok) 30%,var(--line))}.ocrbox.show{display:block}.ocrstatus{font-weight:850}.ocrtext{font-size:11px;color:var(--muted);white-space:pre-wrap;max-height:110px;overflow:auto;margin-top:7px}.scanprogress{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:8px}.scanprogress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--ok));transition:width .2s}.customer-card{display:grid;gap:10px}.customer-count{font-size:12px;color:var(--muted)}.quickpick{border:1px solid color-mix(in srgb,var(--primary) 25%,var(--line));background:color-mix(in srgb,var(--primary) 5%,var(--card))}
 </style>
 </head>
 <body>
 <div class="app">
-<header class="hero">
- <div class="top"><div class="brand"><div class="logo">🚚</div><div><h1>AbholManager</h1><small>Version 4 · Team</small></div></div><button class="iconbtn" onclick="go('reminders')">🔔</button></div>
- <div class="welcome"><h2>Deine Touren. Dein Überblick.</h2><p>Abholungen intelligent erfassen, zuweisen und abschließen.</p></div>
- <div class="driverline"><div class="driver"><div class="avatar">F</div><div><small style="opacity:.7">Aktiver Fahrer</small><br><select id="driverProfile" onchange="changeDriver(this.value)"><option>Fahrer 1</option><option>Fahrer 2</option><option>Fahrer 3</option><option>Disposition</option></select></div></div><span class="badge green">Alle Touren</span></div>
+<header>
+  <div class="top"><div class="brand"><h1>AbholManager</h1><div class="sub">Foto-Erkennung · Kundendatenbank</div></div><button class="iconbtn" id="themeBtn" aria-label="Dark Mode">🌙</button></div>
+  <nav>
+    <button class="active" data-view="dashboard">Übersicht</button>
+    <button data-view="search">Suche</button>
+    <button data-view="calendar">Kalender</button>
+    <button data-view="customers">Kunden</button>
+    <button data-view="stats">Statistik</button>
+  </nav>
 </header>
-
 <main>
-<section id="home" class="view active">
- <div class="summary">
-  <div class="stat"><small>Offen</small><strong id="mOpen">0</strong></div>
-  <div class="stat red"><small>Kritisch</small><strong id="mCritical">0</strong></div>
-  <div class="stat amber"><small>Bald fällig</small><strong id="mSoon">0</strong></div>
-  <div class="stat green"><small>Erledigt</small><strong id="mDone">0</strong></div>
- </div>
-
- <div class="panel" id="realStats">
-  <div class="sectiontitle" style="margin-top:0"><h3>Echte Statistiken</h3><span id="statsPeriod" class="badge">Gesamt</span></div>
-  <div class="summary">
-   <div class="stat"><small>Abholungen gesamt</small><strong id="sTotal">0</strong></div>
-   <div class="stat green"><small>Abschlussquote</small><strong id="sRate">0%</strong></div>
-   <div class="stat amber"><small>Ø Bearbeitungszeit</small><strong id="sAvg">–</strong></div>
-   <div class="stat red"><small>Überfällig</small><strong id="sOverdue">0</strong></div>
-  </div>
-  <div class="settingrow"><div><b>Stärkste Tour</b><div class="meta">Meiste erfasste Abholungen</div></div><span id="sTopTour" class="badge">–</span></div>
-  <div class="settingrow"><div><b>Aktivster Fahrer</b><div class="meta">Meiste Abschlüsse</div></div><span id="sTopDriver" class="badge green">–</span></div>
- </div>
-
- <div id="warning" class="warning hidden"><div class="warnicon">⚠️</div><div><b>Handlungsbedarf</b><div id="warningText"></div></div></div>
- <div class="toolbar"><div class="search"><input id="search" placeholder="Kunde, Adresse, Auftrag oder Tour" oninput="render()"></div><button class="chip" onclick="sortAsc=!sortAsc;render()">↕</button></div>
- <div class="toolbar" style="margin-top:0"><select id="tourFilter" class="chip" onchange="render()"><option value="">Alle Touren</option><option>G72</option><option>G61</option><option>G63</option><option>G62</option><option>G60</option><option>G59</option><option>K57</option></select><select id="statusFilter" class="chip" onchange="render()"><option value="">Alle Status</option><option>Offen</option><option>Erledigt</option></select></div>
- <div class="sectiontitle"><h3>Aktuelle Abholungen</h3><span class="meta" id="countLabel"></span></div>
- <div id="jobs"></div>
+<section id="dashboard" class="view active">
+  <div class="hero"><small id="today"></small><h2>Deine Abholungen im Blick</h2><p>Fristen, Touren und Nachweise an einem Ort.</p></div>
+  <div class="metrics" id="metrics"></div>
+  <div class="section"><h2>Priorisierte Abholungen</h2><span class="meta" id="activeTourLabel">Alle Touren</span></div>
+  <div class="card"><label>Tour filtern<select id="tourFilter"><option value="">Alle Touren</option></select></label></div>
+  <div id="jobList"></div>
 </section>
-
-<section id="calendar" class="view"><div class="sectiontitle"><h3>Kalender</h3></div><div class="panel" id="calendarList"></div></section>
-<section id="map" class="view"><div class="sectiontitle"><h3>Touren & Karten</h3></div><div class="panel" id="mapList"></div></section>
-<section id="reminders" class="view"><div class="sectiontitle"><h3>Erinnerungen</h3></div><div class="panel"><button class="btn" onclick="enableNotifications()">Benachrichtigungen aktivieren</button><div id="reminderList"></div></div></section>
-<section id="settings" class="view">
- <div class="sectiontitle"><h3>Einstellungen</h3></div>
- <div class="panel">
-  <div class="settingrow"><div><b>Dunkelmodus</b><div class="meta">Premium-Darstellung</div></div><button class="chip" onclick="toggleDark()">Umschalten</button></div>
-  <div class="settingrow"><div><b>Teamzugriff</b><div class="meta">Alle Fahrer sehen alle Touren</div></div><span class="badge green">Aktiv</span></div>
-  <div class="settingrow"><div><b>Cloud-Synchronisierung</b><div class="meta">Noch nicht verbunden</div></div><span class="badge amber">Vorbereitet</span></div>
-  <div class="settingrow"><div><b>Daten exportieren</b></div><button class="chip" onclick="exportData()">Export</button></div>
-  <div class="settingrow"><div><b>Daten importieren</b></div><label class="chip">Import<input type="file" accept=".json" hidden onchange="importData(event)"></label></div>
- </div>
-
- <div class="panel">
-  <h3>Live-Synchronisierung</h3>
-  <div id="syncState" class="note">Noch nicht verbunden. Lokale Daten bleiben weiterhin verfügbar.</div>
-  <label>Supabase Projekt-URL<input id="supabaseUrl" placeholder="https://…supabase.co"></label>
-  <label style="display:block;margin-top:10px">Supabase Anon Key<input id="supabaseKey" type="password" placeholder="Öffentlicher anon key"></label>
-  <div class="actions" style="grid-template-columns:1fr 1fr;margin-top:12px">
-   <button class="btn dark" onclick="connectCloud()">Verbinden</button>
-   <button class="btn secondary" onclick="disconnectCloud()">Trennen</button>
+<section id="search" class="view">
+  <div class="search"><input id="searchInput" placeholder="Kunde, Auftrag, Adresse oder Tour suchen"></div>
+  <div id="searchList"></div>
+</section>
+<section id="calendar" class="view">
+  <div class="section"><h2>Fristenkalender</h2><span class="meta">Nach Fälligkeit sortiert</span></div>
+  <div id="calendarList"></div>
+</section>
+<section id="customers" class="view">
+  <div class="section"><h2>Kundendatenbank</h2><span class="meta" id="customerCount"></span></div>
+  <div class="card stack">
+    <input id="customerSearch" placeholder="Name, Adresse, Ort oder Tour suchen">
+    <div class="meta">Kunden werden beim Speichern einer Abholung automatisch übernommen und bei späteren Abholungen vorgeschlagen.</div>
   </div>
-  <div class="meta" style="margin-top:10px">Bei aktiver Verbindung werden Abholungen aller Kollegen automatisch geladen und Änderungen übertragen.</div>
- </div>
-
- <div class="panel"><h3>Aktivitätsverlauf</h3><div id="activityList" class="timeline"></div></div>
+  <div id="customerList"></div>
+</section>
+<section id="stats" class="view">
+  <div class="section"><h2>Leistungsübersicht</h2></div>
+  <div class="card stack" id="statsContent"></div>
+  <div class="card stack"><b>Daten & Gerät</b><div class="meta">Alle Daten bleiben lokal auf diesem iPhone. Für echte Team- und Cloudfunktionen wäre später ein Server nötig.</div><button class="btn" onclick="exportData()">Daten exportieren</button><button class="btn" onclick="importInput.click()">Daten importieren</button><input id="importInput" type="file" accept="application/json" hidden></div>
+</section>
+<section id="create" class="view">
+  <div class="section"><h2>Neue Abholung</h2><button class="btn small" onclick="go('dashboard')">Abbrechen</button></div>
+  <form id="form" class="card stack">
+    <div class="notice">Foto möglichst gerade, scharf und gut beleuchtet aufnehmen. Danach erkennt die App Name, Auftragsnummer, Straße, PLZ, Ort und Tour automatisch. Bitte vor dem Speichern kurz kontrollieren.</div>
+    <label class="photo">📷 Abholschein fotografieren<input id="slipPhoto" type="file" accept="image/*" capture="environment" required><img id="slipPreview" hidden></label>
+    <button type="button" class="btn primary" id="ocrBtn">✨ Foto jetzt automatisch auslesen</button><div class="ocrbox" id="ocrBox"><div class="ocrstatus" id="ocrStatus">Texterkennung wird vorbereitet …</div><div class="scanprogress"><i id="scanBar"></i></div><div class="ocrtext" id="ocrText"></div></div>
+    <label class="quickpick">Gespeicherten Kunden auswählen<select id="savedCustomer"><option value="">— Kunde auswählen —</option></select></label>
+    <div class="form-grid">
+      <label>Kunde<input id="customer" list="customerNames" autocomplete="name" required><datalist id="customerNames"></datalist></label>
+      <label>Auftragsnummer<input id="orderNo" required></label>
+      <label>Straße und Hausnummer<input id="street" autocomplete="street-address" required></label>
+      <label>Postleitzahl<input id="postalCode" inputmode="numeric" maxlength="4" required></label>
+      <label>Ort<input id="city" required></label>
+      <label>Tour<select id="tour" required></select></label>
+      <label>Erfassungsdatum<input id="createdDate" type="date" required></label>
+      <label>Frist<input id="deadline" type="date" required></label>
+      <label>Priorität<select id="priority"><option>Normal</option><option>Hoch</option></select></label>
+    </div>
+    <label>Notiz<textarea id="note" rows="3" placeholder="z. B. Zufahrt, Kontaktperson, Zeitfenster"></textarea></label>
+    <button class="btn primary full">Abholung speichern</button>
+  </form>
 </section>
 </main>
-
-<button class="fab" onclick="openNew()">＋ Neue Abholung</button>
-<nav>
- <button class="active" data-view="home" onclick="go('home')"><span>⌂</span>Übersicht</button>
- <button data-view="calendar" onclick="go('calendar')"><span>▣</span>Kalender</button>
- <button data-view="map" onclick="go('map')"><span>⌖</span>Karte</button>
- <button data-view="reminders" onclick="go('reminders')"><span>◉</span>Erinnerungen</button>
- <button data-view="settings" onclick="go('settings')"><span>⚙</span>Einstellungen</button>
-</nav>
 </div>
-
-<div id="newModal" class="modal"><div class="sheet">
- <div class="sheethead"><h2>Neue Abholung</h2><button class="close" onclick="closeNew()">×</button></div>
- <form id="form" class="formgrid">
-  <div class="photo"><b>Abholschein fotografieren</b><div class="meta">Foto aufnehmen – die KI erkennt Tour, Kunde, vollständige Adresse und Auftragsnummer.</div><input id="slip" type="file" accept="image/*" capture="environment" required><img id="slipPreview" class="hidden"><button id="ocr" class="btn secondary" type="button" style="margin-top:10px">KI-Auswertung starten</button><div id="ocrStatus" class="meta"></div><div id="tourStatus" class="note hidden"></div></div>
-  <div class="formgrid two">
-   <label>Kunde<input id="customer" required></label><label>Auftrag<input id="order"></label>
-   <label>Adresse<input id="address" required></label><label>Tour<select id="tour" required><option value="">Bitte wählen</option><option>G72</option><option>G61</option><option>G63</option><option>G62</option><option>G60</option><option>G59</option><option>K57</option></select></label>
-   <label>Erfasst am<input id="created" type="date" required></label><label>Fällig am<input id="due" type="date" required></label>
-   <label>Priorität<select id="priority"><option>Normal</option><option>Hoch</option></select></label><label>Fahrer<input id="driver"></label>
-  </div>
-  <label>Notiz<textarea id="memo"></textarea></label><button class="btn dark" type="submit">Abholung speichern</button>
- </form>
-</div></div>
-
-<div id="finishModal" class="modal"><div class="sheet">
- <div class="sheethead"><h2>Abholung abschließen</h2><button class="close" onclick="closeFinish()">×</button></div>
- <div class="photo"><b>Abschlussfoto</b><div class="meta">Pflichtfoto als Nachweis.</div><input id="proof" type="file" accept="image/*" capture="environment"><img id="proofPreview" class="hidden"></div>
- <button class="btn dark" style="margin-top:14px;width:100%" onclick="confirmFinish()">Mit Nachweis abschließen</button>
-</div></div>
-
+<button class="fab" onclick="go('create')">＋ Neue Abholung</button>
+<div class="toast" id="toast"></div>
+<dialog id="finishDialog"><div class="dialog stack"><div class="row between"><h2 style="margin:0">Abholung abschließen</h2><button class="btn small" onclick="finishDialog.close()">✕</button></div><div class="notice">Pflichtnachweis: Ware und Abholschein gemeinsam fotografieren.</div><label class="photo">📷 Nachweisfoto<input id="finishPhoto" type="file" accept="image/*" capture="environment"><img id="finishPreview" hidden></label><button class="btn primary" id="finishBtn">Mit Zeitstempel abschließen</button></div></dialog>
 <script>
-const TOURS=['G72','G61','G63','G62','G60','G59','K57'];
-let jobs=JSON.parse(localStorage.getItem('abholmanager-v3-premium-jobs')||localStorage.getItem('abholmanager-v3-jobs')||localStorage.getItem('abholmanager-v2-jobs')||'[]');
-let activities=JSON.parse(localStorage.getItem('abholmanager-v3-premium-activities')||'[]');
-let currentDriver=localStorage.getItem('abholmanager-v3-premium-driver')||'Fahrer 1';
-let sortAsc=true,finishId=null,slipData='',proofData='';
-let db=null,cloudChannel=null;
-const CLOUD_URL_KEY='abholmanager-supabase-url',CLOUD_ANON_KEY='abholmanager-supabase-key';
-const $=id=>document.getElementById(id),iso=d=>d.toISOString().slice(0,10);
-const esc=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const save=()=>{localStorage.setItem('abholmanager-v3-premium-jobs',JSON.stringify(jobs));};
-function saveAct(){localStorage.setItem('abholmanager-v3-premium-activities',JSON.stringify(activities))}
-function addActivity(text){activities.unshift({text,time:new Date().toISOString(),driver:currentDriver});activities=activities.slice(0,100);saveAct();renderActivity()}
-function changeDriver(v){currentDriver=v;localStorage.setItem('abholmanager-v3-premium-driver',v);addActivity('Fahrerprofil aktiviert')}
-
-function cloudConfig(){
- return {url:localStorage.getItem(CLOUD_URL_KEY)||'',key:localStorage.getItem(CLOUD_ANON_KEY)||''}
+const KEY='abholmanager.v5';const CUSTOMER_KEY='abholmanager.customers.v1';const THEME='abholmanager.theme';const TOURS=['G72','G61','G63','G62','G60','G59','K57'];
+let jobs=JSON.parse(localStorage.getItem(KEY)||'null')||[
+{id:crypto.randomUUID(),customer:'Müller GmbH',orderNo:'ABH-2026-101',street:'Hauptstraße 8',postalCode:'8010',city:'Graz',address:'Hauptstraße 8, 8010 Graz',tour:'G72',createdDate:addDays(-2),deadline:addDays(2),priority:'Hoch',note:'Rampe 2 verwenden',status:'open'},
+{id:crypto.randomUUID(),customer:'Bäckerei Huber',orderNo:'ABH-2026-102',street:'Marktplatz 4',postalCode:'8430',city:'Leibnitz',address:'Marktplatz 4, 8430 Leibnitz',tour:'G61',createdDate:addDays(-3),deadline:addDays(1),priority:'Normal',note:'Vor 15 Uhr',status:'open'}];
+let customers=JSON.parse(localStorage.getItem(CUSTOMER_KEY)||'[]');
+if(!customers.length){customers=jobs.map(j=>({id:crypto.randomUUID(),name:j.customer,street:j.street||'',postalCode:j.postalCode||'',city:j.city||'',tour:j.tour||'',note:'',uses:1,updatedAt:new Date().toISOString()}));localStorage.setItem(CUSTOMER_KEY,JSON.stringify(customers))}
+let activeId=null;
+function addDays(n,base=new Date()){const d=new Date(base);d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function daysLeft(v){const a=new Date();a.setHours(0,0,0,0);const b=new Date(v+'T00:00:00');return Math.ceil((b-a)/86400000)}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function info(j){if(j.status==='done')return{label:'Erledigt',cls:'done',rank:99};const d=daysLeft(j.deadline);if(d<0)return{label:`${-d} Tag(e) überfällig`,cls:'danger',rank:0};if(d===0)return{label:'Heute fällig',cls:'danger',rank:1};if(d===1)return{label:'Morgen fällig',cls:'warn',rank:2};return{label:`Noch ${d} Tage`,cls:'open',rank:3+d}}
+function fmt(v){return new Date(v+'T00:00:00').toLocaleDateString('de-AT')}
+function fullAddress(j){return [j.street,j.postalCode,j.city].filter(Boolean).join(', ').replace(', '+(j.postalCode||''),', '+(j.postalCode||'')).trim()||j.address||''}
+function mapsUrl(address){return 'https://maps.apple.com/?daddr='+encodeURIComponent(address)}
+function card(j){const s=info(j);return `<article class="card"><div class="row between jobtop"><div><div class="title">${esc(j.customer)}</div><div class="meta">${esc(j.orderNo)} · ${esc(fullAddress(j))}</div></div><div class="jobbadges"><span class="badge tour">${esc(j.tour||'—')}</span><span class="badge ${s.cls}">${s.label}</span></div></div><div class="meta" style="margin-top:10px">Frist: ${fmt(j.deadline)} · Priorität: ${esc(j.priority)}${j.completedAt?` · erledigt ${new Date(j.completedAt).toLocaleString('de-AT')}`:''}</div>${j.note?`<div class="meta" style="margin-top:6px">Notiz: ${esc(j.note)}</div>`:''}<div class="actions"><a class="btn small" href="${mapsUrl(fullAddress(j))}" target="_blank" rel="noopener" style="text-decoration:none">🧭 Navigation</a>${j.status!=='done'?`<button class="btn primary small" onclick="openFinish('${j.id}')">Abschließen</button>`:''}<button class="btn danger small" onclick="removeJob('${j.id}')">Löschen</button></div></article>`}
+function save(){localStorage.setItem(KEY,JSON.stringify(jobs));localStorage.setItem(CUSTOMER_KEY,JSON.stringify(customers));render()}
+function customerKey(c){return [c.name,c.street,c.postalCode,c.city].join('|').toLowerCase().replace(/\s+/g,' ').trim()}
+function upsertCustomer(data){const key=customerKey(data);let c=customers.find(x=>customerKey(x)===key)||customers.find(x=>x.name.toLowerCase()===data.name.toLowerCase()&&x.postalCode===data.postalCode);if(c){Object.assign(c,data,{uses:(c.uses||0)+1,updatedAt:new Date().toISOString()})}else{customers.unshift({id:crypto.randomUUID(),...data,uses:1,updatedAt:new Date().toISOString()})}}
+function fillCustomer(id){const c=customers.find(x=>x.id===id);if(!c)return;customer.value=c.name;street.value=c.street;postalCode.value=c.postalCode;city.value=c.city;tour.value=c.tour||TOURS[0];toastMsg('Kundendaten übernommen')}
+function removeCustomer(id){if(confirm('Kunden wirklich aus der Datenbank löschen?')){customers=customers.filter(c=>c.id!==id);save();toastMsg('Kunde gelöscht')}}
+function customerCard(c){return `<article class="card customer-card"><div class="row between"><div><div class="title">${esc(c.name)}</div><div class="meta">${esc([c.street,c.postalCode,c.city].filter(Boolean).join(', '))}</div></div><span class="badge tour">${esc(c.tour||'—')}</span></div><div class="customer-count">${c.uses||1}× verwendet</div><div class="actions"><button class="btn primary small" onclick="go('create');fillCustomer('${c.id}')">Neue Abholung</button><button class="btn danger small" onclick="removeCustomer('${c.id}')">Löschen</button></div></article>`}
+function customerRender(){const q=(customerSearch.value||'').toLowerCase();const list=customers.filter(c=>[c.name,c.street,c.postalCode,c.city,c.tour].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.uses||0)-(a.uses||0)||a.name.localeCompare(b.name));customerCount.textContent=customers.length+' gespeichert';customerList.innerHTML=list.map(customerCard).join('')||'<div class="card empty">Noch keine Kunden gespeichert.</div>';customerNames.innerHTML=customers.map(c=>`<option value="${esc(c.name)}">${esc(c.postalCode+' '+c.city)}</option>`).join('');savedCustomer.innerHTML='<option value="">— Kunde auswählen —</option>'+customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.postalCode+' '+c.city)}</option>`).join('')}
+function render(){const selected=tourFilter.value;const shown=selected?jobs.filter(j=>j.tour===selected):jobs;const open=jobs.filter(j=>j.status==='open'),done=jobs.filter(j=>j.status==='done'),critical=open.filter(j=>daysLeft(j.deadline)<=1);metrics.innerHTML=`<div class="metric"><b>${open.length}</b><span>Offen</span></div><div class="metric"><b>${critical.length}</b><span>Kritisch</span></div><div class="metric"><b>${done.length}</b><span>Erledigt</span></div>`;jobList.innerHTML=[...shown].sort((a,b)=>info(a).rank-info(b).rank).map(card).join('')||'<div class="card empty">Keine Abholungen vorhanden.</div>';activeTourLabel.textContent=selected?'Tour '+selected:'Alle Touren';searchRender();calendarRender();const rate=jobs.length?Math.round(done.length/jobs.length*100):0;const byTour=TOURS.map(t=>`${t}: ${jobs.filter(j=>j.tour===t&&j.status==='open').length}`).join(' · ');customerRender();statsContent.innerHTML=`<div class="row between"><b>Abschlussquote</b><b>${rate}%</b></div><div class="progress"><i style="width:${rate}%"></i></div><div class="row between"><span class="meta">Überfällig</span><b>${open.filter(j=>daysLeft(j.deadline)<0).length}</b></div><div class="meta">Offen nach Tour: ${byTour}</div>`}
+function searchRender(){const q=(searchInput.value||'').toLowerCase();const r=jobs.filter(j=>[j.customer,j.orderNo,fullAddress(j),j.tour].join(' ').toLowerCase().includes(q));searchList.innerHTML=r.map(card).join('')||'<div class="card empty">Keine Treffer.</div>'}
+function calendarRender(){const sorted=[...jobs].sort((a,b)=>a.deadline.localeCompare(b.deadline));calendarList.innerHTML=sorted.map(j=>`<div class="card"><div class="row between"><div><b>${fmt(j.deadline)}</b><div class="meta">${esc(j.customer)} · ${esc(fullAddress(j))}</div></div><span class="badge tour">${esc(j.tour||'—')}</span></div></div>`).join('')||'<div class="card empty">Keine Fristen eingetragen.</div>'}
+function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));scrollTo({top:0,behavior:'smooth'})}
+function toastMsg(m){toast.textContent=m;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2300)}
+function preview(input,img){if(input.files?.[0]){img.src=URL.createObjectURL(input.files[0]);img.hidden=false}}
+function removeJob(id){if(confirm('Abholung wirklich löschen?')){jobs=jobs.filter(j=>j.id!==id);save()}}
+function openFinish(id){activeId=id;finishPhoto.value='';finishPreview.hidden=true;finishDialog.showModal()}
+function exportData(){const blob=new Blob([JSON.stringify({version:1,jobs,customers},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='abholmanager-export.json';a.click();URL.revokeObjectURL(a.href)}
+function suggestTour(text){const u=text.toUpperCase();return TOURS.find(t=>u.includes(t))||tour.value||TOURS[0]}
+function cleanLine(v=''){return v.replace(/[|]/g,'I').replace(/\s+/g,' ').trim()}
+function titleCase(v=''){return v.toLowerCase().replace(/(^|[\s-])([a-zäöüß])/g,(m,a,b)=>a+b.toUpperCase())}
+function parseOCR(raw){
+ const lines=raw.split(/\n+/).map(cleanLine).filter(x=>x.length>1); const joined=lines.join(' ');
+ const tourHit=TOURS.find(t=>new RegExp('\\b'+t+'\\b','i').test(joined));
+ const orderPatterns=[/(?:auftrag(?:snummer)?|auftragsnr\.?|sendungsnr\.?|belegnr\.?|abholnr\.?|referenz)\s*[:#-]?\s*([A-Z0-9][A-Z0-9\/-]{4,})/i,/\b(ABH[-\s]?[A-Z0-9-]{4,})\b/i];
+ let order=''; for(const r of orderPatterns){const m=joined.match(r);if(m){order=m[1].replace(/\s/g,'');break}}
+ const addrRegex=/\b(\d{4})\s+([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß .'-]{2,})/; let plz='',ort='',street='';
+ let addrIndex=-1; for(let i=0;i<lines.length;i++){const m=lines[i].match(addrRegex);if(m){plz=m[1];ort=cleanLine(m[2]).replace(/\s{2,}.*/,'');addrIndex=i;break}}
+ const streetRegex=/([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß .'-]*(?:straße|strasse|str\.|weg|gasse|platz|allee|ring|zeile|ufer|kai|dorf|berg))\s+(\d+[a-zA-Z]?(?:\/\d+)?)/i;
+ for(let i=0;i<lines.length;i++){const m=lines[i].match(streetRegex);if(m){street=cleanLine(m[1]+' '+m[2]);break}}
+ if(!street && addrIndex>0){const prev=lines[addrIndex-1];if(/\d/.test(prev) && prev.length<70)street=prev}
+ const ignore=/(abhol|auftrag|liefer|schein|datum|telefon|tel\.|mail|adresse|kunden?nr|nummer|tour|seite|firma|gmbh|kg|ag)/i;
+ let name=''; const labels=lines.findIndex(x=>/^(kunde|empfänger|abholadresse|firma)\s*[:]?$/i.test(x)); if(labels>=0&&lines[labels+1])name=lines[labels+1];
+ if(!name){name=lines.find((x,i)=>i<Math.max(6,addrIndex) && !ignore.test(x) && !streetRegex.test(x) && !addrRegex.test(x) && !/^\d/.test(x) && x.length>=3 && x.length<60)||''}
+ return {name:cleanLine(name),order,street:cleanLine(street),plz,ort:titleCase(cleanLine(ort)),tour:tourHit||suggestTour(joined)}
 }
-function setSyncState(text,type='info'){
- const el=$('syncState'); if(!el)return; el.textContent=text;
- el.style.background=type==='ok'?'#e9fbf3':type==='error'?'#fff1f0':'#edf4ff';
- el.style.color=type==='ok'?'#067647':type==='error'?'#b42318':'#174ea6';
+async function runOCR(file){
+ if(!window.Tesseract)throw new Error('OCR-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.');
+ ocrBox.classList.add('show');ocrText.textContent='';scanBar.style.width='2%';
+ const result=await Tesseract.recognize(file,'deu+eng',{logger:m=>{if(m.status==='recognizing text'){const pct=Math.round((m.progress||0)*100);scanBar.style.width=pct+'%';ocrStatus.textContent='Text wird erkannt: '+pct+' %'}else{ocrStatus.textContent='Texterkennung: '+m.status}}});
+ scanBar.style.width='100%';return result.data.text||''
 }
-async function connectCloud(){
- const url=$('supabaseUrl').value.trim(),key=$('supabaseKey').value.trim();
- if(!url||!key){setSyncState('Bitte Projekt-URL und Anon Key eintragen.','error');return}
- localStorage.setItem(CLOUD_URL_KEY,url);localStorage.setItem(CLOUD_ANON_KEY,key);
- try{
-  db=supabase.createClient(url,key);
-  const {error}=await db.from('pickups').select('id').limit(1);
-  if(error)throw error;
-  setSyncState('Live-Synchronisierung aktiv.','ok');
-  await loadCloudJobs(); subscribeCloud();
- }catch(e){db=null;setSyncState('Verbindung fehlgeschlagen: '+(e.message||e),'error')}
-}
-function disconnectCloud(){
- if(cloudChannel&&db)db.removeChannel(cloudChannel);
- db=null;cloudChannel=null;localStorage.removeItem(CLOUD_URL_KEY);localStorage.removeItem(CLOUD_ANON_KEY);
- $('supabaseUrl').value='';$('supabaseKey').value='';setSyncState('Cloud-Verbindung getrennt. Lokaler Betrieb aktiv.')
-}
-async function initCloud(){
- const c=cloudConfig();$('supabaseUrl').value=c.url;$('supabaseKey').value=c.key;
- if(!c.url||!c.key)return;
- try{db=supabase.createClient(c.url,c.key);const {error}=await db.from('pickups').select('id').limit(1);if(error)throw error;setSyncState('Live-Synchronisierung aktiv.','ok');await loadCloudJobs();subscribeCloud()}
- catch(e){db=null;setSyncState('Gespeicherte Cloud-Verbindung konnte nicht hergestellt werden.','error')}
-}
-async function loadCloudJobs(){
- if(!db)return;
- const {data,error}=await db.from('pickups').select('*').order('created_at',{ascending:false});
- if(error){setSyncState('Cloud-Daten konnten nicht geladen werden.','error');return}
- jobs=(data||[]).map(fromCloud);save();render()
-}
-function fromCloud(r){
- return {id:r.id,customer:r.customer||'',order:r.order_no||'',address:r.address||'',tour:r.tour||'',created:r.captured_date||'',due:r.due_date||'',priority:r.priority||'Normal',driver:r.driver||'',memo:r.memo||'',status:r.status||'Offen',slip:r.slip_photo||'',proof:r.proof_photo||'',completedAt:r.completed_at||'',completedBy:r.completed_by||''}
-}
-function toCloud(j){
- return {id:j.id,customer:j.customer,order_no:j.order,address:j.address,tour:j.tour,captured_date:j.created,due_date:j.due,priority:j.priority,driver:j.driver,memo:j.memo,status:j.status,slip_photo:j.slip,proof_photo:j.proof,completed_at:j.completedAt||null,completed_by:j.completedBy||null,updated_at:new Date().toISOString()}
-}
-async function syncJob(j){
- if(!db)return;
- const {error}=await db.from('pickups').upsert(toCloud(j));
- if(error)setSyncState('Änderung lokal gespeichert, Cloud-Übertragung fehlgeschlagen.','error')
-}
-function subscribeCloud(){
- if(!db)return;
- if(cloudChannel)db.removeChannel(cloudChannel);
- cloudChannel=db.channel('pickups-live').on('postgres_changes',{event:'*',schema:'public',table:'pickups'},()=>loadCloudJobs()).subscribe()
-}
-
-function daysLeft(j){return Math.ceil((new Date(j.due+'T23:59:59')-new Date())/86400000)}
-function state(j){if(j.status==='Erledigt')return{text:'Erledigt',cls:'green',rank:4};const d=daysLeft(j);if(d<0)return{text:'Überfällig',cls:'red',rank:0};if(d===0)return{text:'Heute fällig',cls:'red',rank:1};if(d<=2)return{text:'Bald fällig',cls:'amber',rank:2};return{text:'Offen',cls:'',rank:3}}
-function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));render()}
-function render(){
- const q=($('search')?.value||'').toLowerCase(),tf=$('tourFilter')?.value||'',sf=$('statusFilter')?.value||'';
- let list=jobs.filter(j=>(!tf||j.tour===tf)&&(!sf||j.status===sf)&&(!q||[j.customer,j.address,j.order,j.tour,j.driver].join(' ').toLowerCase().includes(q)));
- list.sort((a,b)=>(state(a).rank-state(b).rank)*(sortAsc?1:-1));
- $('jobs').innerHTML=list.length?list.map(card).join(''):'<div class="empty">Noch keine Abholungen vorhanden.</div>';
- $('countLabel').textContent=list.length+' Einträge';
- $('mOpen').textContent=jobs.filter(j=>j.status!=='Erledigt').length;
- $('mCritical').textContent=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)<=0).length;
- $('mSoon').textContent=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)>0&&daysLeft(j)<=2).length;
- $('mDone').textContent=jobs.filter(j=>j.status==='Erledigt').length;
- const c=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)<=0).length;$('warning').classList.toggle('hidden',!c);$('warningText').textContent=c+' Abholung(en) heute fällig oder überfällig.';
- renderCalendar();renderMap();renderReminders();renderActivity();renderRealStats()
-}
-function card(j){const s=state(j),img=j.slip?`<img class="thumb" src="${j.slip}">`:`<div class="thumb">📄</div>`;return `<article class="job"><div class="jobtop">${img}<div><h4>${esc(j.customer)}</h4><div class="meta">📍 ${esc(j.address)}</div><div class="meta">🚚 Tour ${esc(j.tour)} ${j.driver?'· 👤 '+esc(j.driver):''}</div><div class="meta">📅 ${esc(j.due)}</div><div class="badges"><span class="badge ${s.cls}">${s.text}</span><span class="badge">${esc(j.priority)}</span></div></div></div><div class="actions"><button class="btn secondary" onclick="route('${encodeURIComponent(j.address)}')">Route</button>${j.status==='Erledigt'?'<button class="btn secondary" disabled>Erledigt</button><button class="btn secondary" disabled>Nachweis</button>':`<button class="btn dark" onclick="assignToMe('${j.id}')">Übernehmen</button><button class="btn" onclick="openFinish('${j.id}')">Abschließen</button>`}</div></article>`}
-function route(a){location.href='https://maps.apple.com/?daddr='+a}
-function assignToMe(id){const j=jobs.find(x=>x.id===id);j.driver=currentDriver;save();syncJob(j);addActivity('Abholung '+(j.order||j.customer)+' übernommen · '+j.tour);render()}
-function openNew(){$('newModal').classList.add('open');const d=new Date();$('created').value=iso(d);d.setDate(d.getDate()+4);$('due').value=iso(d);$('driver').value=currentDriver}
-function closeNew(){$('newModal').classList.remove('open')}
-function fileToData(f,cb){const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(f)}
-$('slip').onchange=e=>{const f=e.target.files[0];if(f)fileToData(f,d=>{slipData=d;$('slipPreview').src=d;$('slipPreview').classList.remove('hidden')})}
-$('proof').onchange=e=>{const f=e.target.files[0];if(f)fileToData(f,d=>{proofData=d;$('proofPreview').src=d;$('proofPreview').classList.remove('hidden')})}
-$('ocr').onclick=async()=>{
- if(!$('slip').files.length){alert('Bitte zuerst fotografieren.');return}
- $('ocr').disabled=true;$('ocrStatus').textContent='KI liest Abholschein …';$('tourStatus').classList.add('hidden');
- try{
-  const r=await Tesseract.recognize($('slip').files[0],'deu');const text=r.data.text.replace(/\r/g,'');const lines=text.split('\n').map(x=>x.trim()).filter(Boolean);const compact=text.toUpperCase().replace(/[\s._–—-]+/g,'');
-  const context=lines.map(x=>x.toUpperCase().replace(/[\s._–—-]+/g,''));const contextual=TOURS.filter(t=>context.some(l=>/(TOUR|ROUTE|BEZIRK)/.test(l)&&l.includes(t)));const matches=contextual.length?contextual:TOURS.filter(t=>compact.includes(t));
-  if(matches.length===1){$('tour').value=matches[0];$('tourStatus').textContent='🚚 Tour erkannt: '+matches[0];$('tourStatus').classList.remove('hidden')}else{$('tour').value='';$('tourStatus').textContent=matches.length?'Mehrere Touren erkannt: '+matches.join(', ')+'. Bitte prüfen.':'Keine eindeutige Tour erkannt. Bitte auswählen.';$('tourStatus').classList.remove('hidden')}
-  const order=text.match(/[A-ZÄÖÜ]{1,5}[-\s]?\d{3,}/i);if(order)$('order').value=order[0].replace(/\s/g,'-');
-  const streetIndex=lines.findIndex(x=>/\d/.test(x)&&/(straße|strasse|str\.|weg|platz|gasse|allee|ring|zeile|markt|ufer)/i.test(x));
-  if(streetIndex>=0){
-   let detected=lines[streetIndex];
-   const next=lines[streetIndex+1]||'';
-   if(/\b\d{4,5}\b/.test(next))detected+=' '+next;
-   $('address').value=detected;
-  }else{
-   const postalIndex=lines.findIndex(x=>/\b\d{4,5}\b/.test(x));
-   if(postalIndex>0)$('address').value=(lines[postalIndex-1]+' '+lines[postalIndex]).trim();
-  }
-  const comp=lines.find(x=>/(gmbh|ag|kg|logistik|handel|firma)/i.test(x));if(comp)$('customer').value=comp;else if(lines[0])$('customer').value=lines[0];
-  $('ocrStatus').textContent='Auswertung fertig. Bitte prüfen.';
- }catch(e){$('ocrStatus').textContent='Erkennung fehlgeschlagen. Bitte manuell eintragen.'}finally{$('ocr').disabled=false}
-}
-$('form').onsubmit=e=>{e.preventDefault();const j={id:crypto.randomUUID(),customer:$('customer').value.trim(),order:$('order').value.trim(),address:$('address').value.trim(),tour:$('tour').value,created:$('created').value,due:$('due').value,priority:$('priority').value,driver:$('driver').value.trim(),memo:$('memo').value.trim(),status:'Offen',slip:slipData,proof:'',completedAt:''};jobs.unshift(j);save();syncJob(j);addActivity('Neue Abholung erfasst · '+j.tour);e.target.reset();slipData='';$('slipPreview').classList.add('hidden');closeNew();render()}
-function openFinish(id){finishId=id;proofData='';$('proof').value='';$('proofPreview').classList.add('hidden');$('finishModal').classList.add('open')}
-function closeFinish(){$('finishModal').classList.remove('open')}
-function confirmFinish(){if(!proofData){alert('Bitte Abschlussfoto aufnehmen.');return}const j=jobs.find(x=>x.id===finishId);j.status='Erledigt';j.proof=proofData;j.completedAt=new Date().toISOString();j.completedBy=currentDriver;save();syncJob(j);addActivity('Abholung '+(j.order||j.customer)+' abgeschlossen · '+j.tour);closeFinish();render()}
-
-function renderRealStats(){
- const total=jobs.length,done=jobs.filter(j=>j.status==='Erledigt');
- $('sTotal').textContent=total;
- $('sRate').textContent=total?Math.round(done.length/total*100)+'%':'0%';
- $('sOverdue').textContent=jobs.filter(j=>j.status!=='Erledigt'&&daysLeft(j)<0).length;
- const durations=done.filter(j=>j.completedAt&&j.created).map(j=>(new Date(j.completedAt)-new Date(j.created+'T00:00:00'))/86400000).filter(x=>x>=0);
- $('sAvg').textContent=durations.length?(durations.reduce((a,b)=>a+b,0)/durations.length).toFixed(1)+' T':'–';
- const tourCounts={};jobs.forEach(j=>{if(j.tour)tourCounts[j.tour]=(tourCounts[j.tour]||0)+1});
- const topTour=Object.entries(tourCounts).sort((a,b)=>b[1]-a[1])[0];$('sTopTour').textContent=topTour?topTour[0]+' · '+topTour[1]:'–';
- const driverCounts={};done.forEach(j=>{const d=j.completedBy||j.driver;if(d)driverCounts[d]=(driverCounts[d]||0)+1});
- const topDriver=Object.entries(driverCounts).sort((a,b)=>b[1]-a[1])[0];$('sTopDriver').textContent=topDriver?topDriver[0]+' · '+topDriver[1]:'–';
-}
-
-function renderCalendar(){const el=$('calendarList');if(!el)return;const list=[...jobs].sort((a,b)=>a.due.localeCompare(b.due));el.innerHTML=list.length?list.map(j=>{const d=new Date(j.due+'T12:00:00');return `<div class="calendarrow"><div style="display:flex;gap:12px;align-items:center"><div class="datebox">${d.getDate()}<br><small>${d.toLocaleString('de',{month:'short'})}</small></div><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.tour)} · ${esc(j.address)}</div></div></div><span class="badge ${state(j).cls}">${state(j).text}</span></div>`}).join(''):'<div class="empty">Keine Termine.</div>'}
-function renderMap(){const el=$('mapList');if(!el)return;el.innerHTML=jobs.filter(j=>j.status!=='Erledigt').map(j=>`<div class="maprow"><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.address)} · ${esc(j.tour)}</div></div><button class="chip" onclick="route('${encodeURIComponent(j.address)}')">Öffnen</button></div>`).join('')||'<div class="empty">Keine offenen Routen.</div>'}
-function renderReminders(){const el=$('reminderList');if(!el)return;el.innerHTML=jobs.filter(j=>j.status!=='Erledigt').sort((a,b)=>a.due.localeCompare(b.due)).map(j=>`<div class="settingrow"><div><b>${esc(j.customer)}</b><div class="meta">${esc(j.tour)} · ${state(j).text}</div></div><span class="badge ${state(j).cls}">${esc(j.due)}</span></div>`).join('')||'<div class="empty">Keine Erinnerungen.</div>'}
-function renderActivity(){const el=$('activityList');if(!el)return;el.innerHTML=activities.length?activities.slice(0,20).map(a=>`<div class="event"><b>${esc(a.driver)}</b><div>${esc(a.text)}</div><small class="meta">${new Date(a.time).toLocaleString('de-DE')}</small></div>`).join(''):'<div class="empty">Noch keine Aktivitäten.</div>'}
-async function enableNotifications(){if(!('Notification'in window)){alert('Nicht unterstützt.');return}const p=await Notification.requestPermission();if(p==='granted')new Notification('AbholManager',{body:'Erinnerungen aktiviert.'})}
-function toggleDark(){document.body.classList.toggle('dark');localStorage.setItem('abholmanager-v3-premium-dark',document.body.classList.contains('dark')?'1':'0')}
-function exportData(){const b=new Blob([JSON.stringify({jobs,activities},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='AbholManager-V3-Backup.json';a.click()}
-function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);jobs=d.jobs||d;activities=d.activities||[];save();saveAct();render();alert('Import erfolgreich.')}catch{alert('Import fehlgeschlagen.')}};r.readAsText(f)}
-$('driverProfile').value=currentDriver;if(localStorage.getItem('abholmanager-v3-premium-dark')==='1')document.body.classList.add('dark');
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');render();initCloud();
+TOURS.forEach(t=>{tour.add(new Option(t,t));tourFilter.add(new Option(t,t))});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));searchInput.addEventListener('input',searchRender);customerSearch.addEventListener('input',customerRender);savedCustomer.onchange=e=>fillCustomer(e.target.value);customer.addEventListener('change',()=>{const c=customers.find(x=>x.name.toLowerCase()===customer.value.trim().toLowerCase());if(c)fillCustomer(c.id)});tourFilter.onchange=render;slipPhoto.addEventListener('change',e=>{preview(e.target,slipPreview);ocrBox.classList.remove('show')});finishPhoto.addEventListener('change',e=>preview(e.target,finishPreview));
+createdDate.value=addDays(0);deadline.value=addDays(4);createdDate.onchange=e=>deadline.value=addDays(4,new Date(e.target.value+'T12:00:00'));
+ocrBtn.onclick=async()=>{if(!slipPhoto.files.length)return toastMsg('Bitte zuerst fotografieren');ocrBtn.disabled=true;ocrBtn.textContent='⏳ Foto wird ausgelesen …';try{const raw=await runOCR(slipPhoto.files[0]);ocrText.textContent=raw||'Kein Text erkannt.';const d=parseOCR(raw);if(d.name)customer.value=d.name;if(d.order)orderNo.value=d.order;if(d.street)street.value=d.street;if(d.plz)postalCode.value=d.plz;if(d.ort)city.value=d.ort;if(d.tour)tour.value=d.tour;ocrStatus.textContent='Erkennung fertig – bitte Felder kontrollieren';toastMsg('Daten automatisch ausgefüllt')}catch(err){ocrStatus.textContent='Erkennung fehlgeschlagen';ocrText.textContent=err.message||String(err);toastMsg('Texterkennung fehlgeschlagen')}finally{ocrBtn.disabled=false;ocrBtn.textContent='✨ Foto erneut auslesen'}};
+form.onsubmit=e=>{e.preventDefault();if(!slipPhoto.files.length)return toastMsg('Pflichtfoto fehlt');const customerData={name:customer.value.trim(),street:street.value.trim(),postalCode:postalCode.value.trim(),city:city.value.trim(),tour:tour.value,note:note.value.trim()};upsertCustomer(customerData);jobs.unshift({id:crypto.randomUUID(),customer:customerData.name,orderNo:orderNo.value.trim(),street:customerData.street,postalCode:customerData.postalCode,city:customerData.city,address:[customerData.street,customerData.postalCode,customerData.city].filter(Boolean).join(', '),tour:customerData.tour,createdDate:createdDate.value,deadline:deadline.value,priority:priority.value,note:note.value.trim(),status:'open'});save();e.target.reset();createdDate.value=addDays(0);deadline.value=addDays(4);tour.value=TOURS[0];slipPreview.hidden=true;ocrBox.classList.remove('show');go('dashboard');toastMsg('Abholung gespeichert')};
+finishBtn.onclick=()=>{if(!finishPhoto.files.length)return toastMsg('Nachweisfoto fehlt');const j=jobs.find(x=>x.id===activeId);if(j){j.status='done';j.completedAt=new Date().toISOString();save()}finishDialog.close();toastMsg('Abholung abgeschlossen')};
+importInput.onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(Array.isArray(data)){jobs=data}else if(data&&Array.isArray(data.jobs)){jobs=data.jobs;customers=Array.isArray(data.customers)?data.customers:customers}else throw 0;save();toastMsg('Daten importiert')}catch{toastMsg('Ungültige Importdatei')}};
+function setTheme(v){document.documentElement.dataset.theme=v;localStorage.setItem(THEME,v);themeBtn.textContent=v==='dark'?'☀️':'🌙'}themeBtn.onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');setTheme(localStorage.getItem(THEME)||'light');today.textContent=new Date().toLocaleDateString('de-AT',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});render();
 </script>
-</body></html>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</body>
+</html>
